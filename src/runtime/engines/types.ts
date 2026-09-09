@@ -29,7 +29,10 @@ export interface EngineAdapter {
 }
 export function safeError(error: unknown): string {
   return (error instanceof Error ? error.message : String(error))
-    .replace(/\b(sk-[A-Za-z0-9_-]+|Bearer\s+\S+)/gi, '[redacted]')
+    .replace(
+      /\b(sk-[A-Za-z0-9_-]+|xai-[A-Za-z0-9_-]+|AIza[A-Za-z0-9_-]{20,}|Bearer\s+\S+)/gi,
+      '[redacted]',
+    )
     .replace(/(api[_-]?key|authorization|token)["']?\s*[:=]\s*["']?[^\s,}\n]+/gi, '$1=[redacted]')
     .slice(0, 4000);
 }

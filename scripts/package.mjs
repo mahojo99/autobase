@@ -1,4 +1,6 @@
 import { packager } from '@electron/packager';
+import { copyFile, cp, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
 await import('./build.mjs');
 const paths = await packager({
   dir: '.',
@@ -22,3 +24,11 @@ const paths = await packager({
   },
 });
 console.log(paths.join('\n'));
+for (const directory of paths) {
+  await copyFile('README.md', join(directory, 'README.md'));
+  await copyFile('THIRD_PARTY_NOTICES.md', join(directory, 'THIRD_PARTY_NOTICES.md'));
+  await cp('docs', join(directory, 'docs'), { recursive: true });
+  const notes = join(directory, 'src/ui/assets/bots');
+  await mkdir(notes, { recursive: true });
+  await copyFile('src/ui/assets/bots/README.md', join(notes, 'README.md'));
+}

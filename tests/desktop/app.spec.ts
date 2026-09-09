@@ -102,6 +102,7 @@ test('Electron isolated renderer, live readiness, demo orchestration, approval, 
     window.relay.invoke<Snapshot>('personal', { action: 'snapshot' }),
   );
   expect(personal.tasks).toHaveLength(0);
+  expect(personal.bots.map((b) => b.name)).toEqual(['Optimus Prime']);
   const after = await page.evaluate(() =>
     window.relay.invoke<Snapshot>('demo', { action: 'snapshot' }),
   );
@@ -168,6 +169,35 @@ test('Desktop keyboard focus, IPC validation and encrypted credential round trip
     }
   });
   expect(rejection).toBe(true);
+  for (const [provider, key] of [
+    ['claude', 'sk-ant-fixture-only-api-key'],
+    ['grok', 'xai-fixture-only-api-key'],
+    ['gemini', 'AIzaFixtureOnlyApiKeyNotARealSecret'],
+  ] as const) {
+    await page.evaluate(
+      async ({ provider, key }) => {
+        await window.relay.setApiKey(provider, key);
+        await window.relay.invoke('personal', { action: 'readiness' });
+      },
+      { provider, key },
+    );
+    const snapshot = await page.evaluate(() =>
+      window.relay.invoke<Snapshot>('personal', { action: 'snapshot' }),
+    );
+    expect(snapshot.engines.find((e) => e.engine === provider)?.state).toBe('installed');
+    expect(JSON.stringify(snapshot)).not.toContain(key);
+    await page.evaluate((provider) => window.relay.setApiKey(provider, ''), provider);
+  }
+  expect(
+    await page.evaluate(async () => {
+      try {
+        await window.relay.signIn('shell' as any);
+        return false;
+      } catch {
+        return true;
+      }
+    }),
+  ).toBe(true);
   const encrypted = await app.evaluate(({ safeStorage }) => {
     const bytes = safeStorage.encryptString('fixture-only-secret');
     return {

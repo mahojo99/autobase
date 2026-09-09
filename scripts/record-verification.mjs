@@ -5,17 +5,18 @@ const read = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const first = read('.cache/live-first-result.json');
 const delegation = read('.cache/live-delegation-result.json');
 const packaged = read('.cache/packaged-verification.json');
+const packagedClaude = read('.cache/packaged-claude-verification.json');
 const web = read('.cache/web-verification.json');
 const hash = (path) => createHash('sha256').update(readFileSync(path)).digest('hex');
 const proof = {
   recordedAt: new Date().toISOString(),
   branch: 'feature/desktop-foundation',
   product: 'Autobase',
-  note: 'Live creation/delegation entries retain the original foundation evidence. Packaged live and screenshots are from the Autobase redesign.',
+  note: 'Codex creation/delegation entries retain original foundation evidence. Packaged Codex and Claude and screenshots verify the current Autobase character/naming and provider build.',
   automatedCoverage: {
-    domainAdapterRuntime: { passed: 35, failed: 0 },
+    domainAdapterRuntime: { passed: 42, failed: 0 },
     electron: { passed: 4, failed: 0 },
-    packagedLive: { passed: 1, failed: 0 },
+    packagedLive: { passed: 2, failed: 0 },
     defaultConversationAxeViolations: 0,
     accessibilitySurfaces: read('.cache/accessibility/audit.json').map((s) => ({
       surface: s.surface,
@@ -55,6 +56,21 @@ const proof = {
     appAsarSha256: hash('release/Autobase-win32-x64/resources/app.asar'),
   },
   liveHttp: web,
+  packagedClaude: {
+    verifiedAt: packagedClaude.verifiedAt,
+    live: true,
+    authentication: 'Existing native Claude Pro login; no credentials copied or imported',
+    restartPreserved: true,
+    tasks: packagedClaude.tasks,
+    runs: packagedClaude.runs,
+    bots: packagedClaude.bots,
+    artifacts: packagedClaude.artifacts,
+  },
+  apiAdapters: {
+    grok: 'Implemented; protocol fixtures passed; live blocked by missing xAI API key',
+    gemini: 'Implemented; protocol fixtures passed; live blocked by missing Google AI Studio key',
+    nativeGrokGeminiLogin: 'Not implemented',
+  },
   claude: {
     sdk: '0.3.266',
     localMcpRoundTrip: 'verified',

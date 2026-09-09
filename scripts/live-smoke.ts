@@ -4,7 +4,8 @@ import { setTimeout as delay } from 'node:timers/promises';
 import assert from 'node:assert/strict';
 import { Runtime } from '../src/runtime/runtime';
 import type { Bot, Task } from '../src/shared/contracts';
-const dir = resolve('.cache/live-verification');
+const dir = resolve(`.cache/live-verification-${Date.now()}`);
+let createdBotId = '';
 mkdirSync(dir, { recursive: true });
 const runtime = new Runtime(dir, 'personal', (e) => {
   if (e.kind !== 'delta') return;
@@ -23,7 +24,7 @@ try {
   const task = (await runtime.command({
     action: 'send',
     botId: 'orchestrator',
-    text: 'This is an authorized bounded live Relay integration check. Use relay_create_bot to create a persistent bot named Evidence Clerk whose role is checking supplied facts and whose instructions are to cite supplied sources. Do not use any other external tools or delegate yet. Use relay_finish to report success with the created bot ID as evidence, then answer in one sentence saying what you created.',
+    text: 'This is an authorized bounded live Autobase integration check. Use relay_create_bot to create a persistent bot whose role is checking supplied facts and whose instructions are to cite supplied sources. Omit name so the runtime assigns one. Do not use any other external tools or delegate yet. Use relay_finish to report success with the created bot ID as evidence, then answer in one sentence saying what you created.',
   })) as Task;
   const deadline = Date.now() + 300000;
   let latest = task;
@@ -39,6 +40,7 @@ try {
     resolve('.cache/live-first-result.json'),
     JSON.stringify(
       {
+        dir,
         task: latest,
         runs: snap.runs.filter((r) => r.taskId === task.id),
         events: snap.events.filter((e) => e.taskId === task.id),
@@ -51,14 +53,16 @@ try {
   );
   console.log('\n' + JSON.stringify(latest, null, 2));
   assert.equal(latest.state, 'completed');
-  assert.ok(snap.bots.some((b) => b.name === 'Evidence Clerk'));
+  const created = snap.bots.find((b) => b.id !== 'orchestrator');
+  assert.ok(created);
+  createdBotId = created.id;
   assert.ok(snap.runs.find((r) => r.taskId === task.id)?.providerSession);
   assert.ok(snap.events.some((e) => e.taskId === task.id && e.kind === 'bot_created'));
 } finally {
   await runtime.stop();
 }
 const restarted = new Runtime(dir, 'personal');
-assert.ok(restarted.store.all<Bot>('bots').some((b) => b.name === 'Evidence Clerk'));
+assert.ok(restarted.store.all<Bot>('bots').some((b) => b.id === createdBotId));
 console.log(
   'LIVE PASS: real Codex response, dynamic bot creation, artifact, and restart persistence.',
 );

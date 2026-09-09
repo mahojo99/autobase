@@ -6,7 +6,7 @@ export const toolSchemas = {
   relay_list_bots: z.object({}).strict(),
   relay_create_bot: z
     .object({
-      name: str(60),
+      name: str(60).optional(),
       role: str(180),
       instructions: str(12000),
       persistent: z.boolean().default(true),
@@ -54,7 +54,7 @@ const descriptions: Record<ToolName, string> = {
   relay_list_bots:
     'List real persistent and temporary workspace bots with configuration and identity.',
   relay_create_bot:
-    'Create an actual specialist. Persistent means reusable; false means one temporary helper. Inherits current engine and permission ceiling. Internal reversible setup needs no further approval.',
+    'Create an actual specialist with an automatically assigned unused Autobot name, independent of its role. Omit name unless the owner explicitly chose an available Autobot name. Persistent means reusable; false means temporary helper. Inherits current engine and permission ceiling. Internal reversible setup needs no further approval.',
   relay_update_bot:
     'Edit a bot for future runs, or archive a specialist. Engine changes may use already-configured authentication. Cannot grant permissions, archive the orchestrator, or change an existing run snapshot.',
   relay_delegate:

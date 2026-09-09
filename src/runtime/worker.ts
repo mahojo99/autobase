@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { Runtime } from './runtime';
 import { safeError } from './engines/types';
-import type { Workspace } from '../shared/contracts';
+import type { Workspace, ApiProvider } from '../shared/contracts';
 
 const port = (
   process as unknown as {
@@ -12,7 +12,7 @@ const port = (
   }
 ).parentPort;
 const dataDir = process.argv[2];
-let key: string | undefined;
+const keys: Partial<Record<ApiProvider, string>> = {};
 const runtimes = new Map<Workspace, Runtime>();
 function runtime(workspace: Workspace) {
   if (!['personal', 'demo'].includes(workspace)) throw new Error('Invalid workspace');
@@ -22,7 +22,7 @@ function runtime(workspace: Workspace) {
       join(dataDir, workspace),
       workspace,
       (event) => port.postMessage({ type: 'event', event }),
-      () => key,
+      (provider = 'claude') => keys[provider],
     );
     runtimes.set(workspace, r);
     void r.start().catch((e) =>
@@ -39,7 +39,9 @@ port.on('message', ({ data }) => {
     try {
       let result: unknown;
       if (data.type === 'key') {
-        key = data.key || undefined;
+        if (!['claude', 'grok', 'gemini'].includes(data.provider ?? 'claude'))
+          throw new Error('Invalid API provider');
+        keys[(data.provider ?? 'claude') as ApiProvider] = data.key || undefined;
         result = true;
       } else if (data.type === 'stop') {
         await Promise.all([...runtimes.values()].map((r) => r.stop()));

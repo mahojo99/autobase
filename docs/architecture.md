@@ -2,7 +2,9 @@
 
 Autobase is an independent, local Electron application. Its default interaction is a persistent conversation with Optimus Prime. Bots, assignments, results, and shared context are real runtime records; the interface is not a provider-chat mockup.
 
-The owner renamed the product from Relay to Autobase and requested a simpler dark interface. The bot list is the main navigation; task details are closed by default, helper assignments expand from one inline summary, and artifacts remain directly accessible in chat. The original letterform and initials avatars use no third-party artwork. Bot naming instructions prefer Bumblebee for research, Wheeljack for building, Ratchet for review, Arcee for writing, and Jazz for planning when the owner has not supplied a name. This affects naming rather than behavior or permissions.
+The owner renamed the product from Relay to Autobase and requested a simpler dark interface. The bot list is the main navigation; task details are closed by default, helper assignments expand from one inline summary, and artifacts remain directly accessible in chat. Optimus Prime is the orchestrator. New specialists receive an unused name from Bumblebee, Ratchet, Wheeljack, Arcee and Jazz, randomly and transactionally in the runtime. An explicitly requested available roster name is honored. Names are independent of roles; a fresh workspace has no specialists. Corresponding monochrome character portraits use owner-supplied Bumblebee artwork and five generated interpretations; [asset provenance](../src/ui/assets/bots/README.md) records the source and prompts.
+
+The current roster permits five active specialists. Archival frees a name without changing historical bot IDs. Duplicate active names, colliding reactivation, and renaming the orchestrator are rejected. Tool receipts make repeated creation calls return the original identity. Existing legacy custom names remain readable with initials.
 
 SQLite migration 2 renames only the original `Relay` orchestrator to `Optimus Prime`, once. Custom names, stable bot IDs, messages, and frozen run snapshots are retained. The application explicitly retains `%APPDATA%\Relay`, `relay.sqlite`, the `RELAY_*` environment overrides, and internal `relay_*` tool/IPC names so the visual rename does not create a second workspace or break integrations.
 
@@ -16,13 +18,16 @@ flowchart LR
   RT --> FILES[Managed artifacts / selected folder reads]
   RT --> CODEX[Codex App Server stdio]
   RT --> CLAUDE[Official Claude Agent SDK]
+  RT --> NATIVE[Native Claude Code]
+  RT --> API[Grok / Gemini API tool loop]
   CODEX -->|task-bound dynamic tools| RT
   CLAUDE -->|in-process MCP tools| RT
+  NATIVE -->|authenticated per-run loopback MCP| RT
 ```
 
 The renderer has no Node integration, is sandboxed, uses context isolation, loads a restricted `relay://app` origin, and receives no credentials. Main validates the sender frame and every command schema. Navigation, popups, webviews, and renderer permission requests are denied. Markdown renders without raw HTML; remote images are omitted and HTTPS links open through a narrow main-process handler. The only folder picker and encrypted credential store live in main.
 
-The utility process owns scheduling, task identity, authorization, queue claims, provider execution, and SQLite. There is no privileged HTTP listener. Provider calls receive closures bound to one task/run; no tool accepts a caller-controlled workspace or acting-bot identity. Helpers cannot grant permissions, edit the orchestrator, approve actions, or delegate recursively. A child receives the intersection of parent and bot permissions. Selected-folder access is frozen on the run, so changing the selected folder cannot silently redirect an active task.
+The utility process owns scheduling, task identity, authorization, queue claims, provider execution, and SQLite. Native Claude's MCP endpoint binds only to `127.0.0.1` on a random port, requires a random per-run bearer capability, validates Host, rejects Origin, bounds requests, and closes on cancellation/completion. The capability is never sent to the renderer or transcript. Provider calls receive closures bound to one task/run; no tool accepts a caller-controlled workspace or acting-bot identity. Helpers cannot grant permissions, edit the orchestrator, approve actions, or delegate recursively. A child receives the intersection of parent and bot permissions. Selected-folder access is frozen on the run, so changing the selected folder cannot silently redirect an active task.
 
 Default limits are two active execution slots, up to two helpers, depth one, 300 seconds, and 40 tool calls. A waiting parent releases an execution slot; the total number of owned sessions is bounded to concurrency plus one. Conversations are serialized per bot. Requests exceeding limits fail visibly. No task success is inferred from process exit or text alone: `relay_finish` must report an outcome, or a fixture adapter must explicitly supply one. Pending children prevent completion. Failed children must be acknowledged in the structured result.
 
@@ -49,6 +54,18 @@ Claude uses official `@anthropic-ai/claude-agent-sdk` 0.3.266, `query`, `tool`, 
 Every run starts a fresh compatible provider session with a visible handoff containing selected context, a compact workspace overview, recent indexed conversation, and prior-attempt output where appropriate. The visible conversation persists, but native provider sessions are never presented as portable across engines. This is a deliberate continuity design, at the cost of fresh-session prompt overhead. The build and live checks used `gpt-6-astra` with `xhigh`; new workspace model choice remains the provider default, editable by the owner.
 
 ## Context, files, and decisions
+
+### Additional provider boundaries
+
+The native Claude Code adapter runs the installed unmodified CLI (tested 2.1.263) with `stream-json`, restricted mode, empty built-in tools and setting sources, no hooks/plugins/memory, strict per-run MCP configuration, and a sanitized environment. Initialization fails if any unexpected tool is exposed or Autobase MCP is disconnected. Authentication stays in Claude Code's own account flow and credential store; Autobase reads only status metadata and never copies tokens. CLI dollar estimates are omitted because they are not subscription charges. Cancellation kills only the owned process and revokes its MCP capability. The temporary capability file is removed after execution.
+
+Grok and Gemini use their documented Chat Completions compatibility APIs with fixed HTTPS endpoints, redirect rejection, explicit API key/model, a bounded request/response loop, and only runtime function tools. This adds two API adapters without adopting their native CLI tool permissions. No ambient API keys or fallback credentials are used. Runtime permissions, receipts, approvals and structured completion apply identically. Gemini assistant messages retain opaque tool-call signatures in run-local memory for the next API turn. They are not shown as reasoning or stored in conversation history. Usage sums provider token counts; no cost estimate is invented. Responses arrive one completed provider turn at a time. No automatic HTTP retry, model catalog, custom endpoint, or native Grok/Gemini login is shipped.
+
+Settings exposes native Codex/Claude sign-in and separately encrypted API-key fields. Main accepts only fixed provider enums, owns CLI launch and Windows DPAPI storage, and never returns saved keys to the renderer. Browser sign-in must be completed by the owner; the new button's full OAuth interaction is not automated in tests. Existing native authentication was used for live verification.
+
+The original API-only Claude brief is superseded by the owner's subscription request and the current [native-hosting documentation](https://code.claude.com/docs/en/legal-and-compliance). Its separate SDK adapter still uses API authentication. Provider limits and terms remain applicable.
+
+### Workspace records
 
 FTS5 indexes messages, results, artifact text, and typed memory with source IDs, timestamps, authority, exclusion, and supersession metadata. Separate physical databases enforce Personal/Demo separation, including guessed-ID reads. User decisions and preferences differ from agent facts/hypotheses. Corrections to confirmed memory create superseding records, preserving conflicting historical sources. Exclusion removes searchable content and excluded messages from future handoffs. Deleting a task source also removes its associated source messages, result files, derived index entries, and retained textual run content. This is application-level deletion, not a forensic secure-erasure guarantee or deletion of provider-side records.
 

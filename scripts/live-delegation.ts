@@ -1,10 +1,13 @@
 import { resolve } from 'node:path';
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 import assert from 'node:assert/strict';
 import { Runtime } from '../src/runtime/runtime';
 import type { ContextRecord, Task } from '../src/shared/contracts';
-const runtime = new Runtime(resolve('.cache/live-verification'), 'personal', (e) => {
+const first = JSON.parse(readFileSync(resolve('.cache/live-first-result.json'), 'utf8'));
+if (!first.dir) throw new Error('Run test:live first to create a fresh named specialist.');
+const helper = first.bots.find((b: { id: string }) => b.id !== 'orchestrator');
+const runtime = new Runtime(resolve(first.dir), 'personal', (e) => {
   if (e.kind === 'delta') process.stdout.write('.');
 });
 await runtime.start();
@@ -18,7 +21,7 @@ try {
   const task = (await runtime.command({
     action: 'send',
     botId: 'orchestrator',
-    text: `Bounded live orchestration check. Retrieve the owner decision about the Relay acceptance brief using relay_search_context and relay_read_context. List bots; use Evidence Clerk as a researcher, and create one persistent reviewer named Brief Reviewer. Delegate exactly two small assignments: Evidence Clerk should identify two benefits of this supplied decision; Brief Reviewer should identify one limitation. Each assignment must contain the retrieved decision text and source ID ${memory.id}, with no other file or web access. Use relay_wait_children, then synthesize their actual structured outcomes in at most 150 words with the source and child task IDs. Write a comparison.md artifact and relay_finish. Do not claim external research or send messages outside Relay.`,
+    text: `Bounded live orchestration check. Retrieve the owner decision about the Relay acceptance brief using relay_search_context and relay_read_context. List bots; use bot ${helper.id} as a researcher, and create one persistent reviewer, omitting its name. Delegate exactly two small assignments: the researcher should identify two benefits of this supplied decision; the reviewer should identify one limitation. Each assignment must contain the retrieved decision text and source ID ${memory.id}, with no other file or web access. Use relay_wait_children, then synthesize their actual structured outcomes in at most 150 words with the source and child task IDs. Write a comparison.md artifact and relay_finish. Do not claim external research or send messages outside Autobase.`,
   })) as Task;
   const deadline = Date.now() + 485000;
   let latest = task;

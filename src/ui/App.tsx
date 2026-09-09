@@ -25,9 +25,16 @@ import {
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { APP_NAME } from '../shared/branding';
+import { APP_NAME, SPECIALIST_NAMES } from '../shared/branding';
+import bumblebeeIcon from './assets/bots/bumblebee.png';
+import optimusIcon from './assets/bots/optimus-prime.png';
+import ratchetIcon from './assets/bots/ratchet.png';
+import wheeljackIcon from './assets/bots/wheeljack.png';
+import arceeIcon from './assets/bots/arcee.png';
+import jazzIcon from './assets/bots/jazz.png';
 import type {
   Bot,
+  ApiProvider,
   Command,
   ContextRecord,
   Decision,
@@ -38,6 +45,22 @@ import type {
 } from '../shared/contracts';
 
 type View = 'conversation' | 'work' | 'bots' | 'context' | 'schedules' | 'settings';
+const engineNames: Record<Bot['engine'], string> = {
+  codex: 'Codex',
+  'claude-code': 'Claude Code · Claude plan',
+  claude: 'Claude Agent · API billing',
+  grok: 'Grok · API billing',
+  gemini: 'Gemini · API billing',
+  demo: 'Offline demo',
+};
+const portraits: Record<string, string> = {
+  'optimus prime': optimusIcon,
+  optimus: optimusIcon,
+  ratchet: ratchetIcon,
+  wheeljack: wheeljackIcon,
+  arcee: arceeIcon,
+  jazz: jazzIcon,
+};
 const states: Record<string, string> = {
   queued: 'Queued',
   running: 'Working',
@@ -78,13 +101,26 @@ function Status({ state }: { state: string }) {
   );
 }
 function BotAvatar({ bot, big = false }: { bot: Bot; big?: boolean }) {
+  const name = bot.name.trim().toLowerCase();
+  const icon =
+    name === 'bumblebee' || name === 'bumbelbee'
+      ? { src: bumblebeeIcon, box: '42 10 486 505', width: 570, height: 624 }
+      : portraits[name]
+        ? { src: portraits[name], box: '0 0 1254 1254', width: 1254, height: 1254 }
+        : null;
   return (
     <span className={`avatar ${big ? 'big' : ''}`} data-bot-name={bot.name} aria-hidden="true">
-      {bot.name
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((part) => part[0])
-        .join('')}
+      {icon ? (
+        <svg className="character-icon" viewBox={icon.box}>
+          <image href={icon.src} width={icon.width} height={icon.height} />
+        </svg>
+      ) : (
+        bot.name
+          .split(/\s+/)
+          .slice(0, 2)
+          .map((part) => part[0])
+          .join('')
+      )}
     </span>
   );
 }
@@ -710,7 +746,7 @@ export function App() {
                         <i />
                         {workspace === 'demo'
                           ? 'Offline demo'
-                          : bot.model || (bot.engine === 'codex' ? 'Codex' : 'Claude Agent')}
+                          : bot.model || engineNames[bot.engine]}
                         <ChevronDown size={12} />
                       </button>
                       <button
@@ -1105,17 +1141,29 @@ function BotEditor({
         >
           <label>
             Name
-            <input
-              autoFocus
+            <select
+              autoFocus={bot.id !== 'orchestrator'}
               required
-              maxLength={60}
+              disabled={bot.id === 'orchestrator'}
               value={form.name}
               onChange={(e) => field('name', e.target.value)}
-            />
+            >
+              {[...new Set([bot.name, ...SPECIALIST_NAMES])].map((name) => (
+                <option
+                  key={name}
+                  disabled={snapshot.bots.some(
+                    (b) => b.id !== bot.id && !b.archived && b.name === name,
+                  )}
+                >
+                  {name}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             Role
             <input
+              autoFocus={bot.id === 'orchestrator'}
               required
               maxLength={180}
               value={form.role}
@@ -1144,18 +1192,26 @@ function BotEditor({
                 ) : (
                   <>
                     <option value="codex">Codex</option>
+                    <option value="claude-code">Claude Code · Claude plan</option>
                     <option value="claude">Claude Agent · API billing</option>
+                    <option value="grok">Grok · API billing</option>
+                    <option value="gemini">Gemini · API billing</option>
                   </>
                 )}
               </select>
             </label>
             <label>
               Reasoning
-              <select value={form.effort} onChange={(e) => field('effort', e.target.value)}>
+              <select
+                disabled={['grok', 'gemini'].includes(form.engine)}
+                value={form.effort}
+                onChange={(e) => field('effort', e.target.value)}
+              >
                 {['low', 'medium', 'high', 'xhigh', 'max'].map((x) => (
                   <option key={x}>{x}</option>
                 ))}
               </select>
+              {['grok', 'gemini'].includes(form.engine) && <small>Uses provider default.</small>}
             </label>
           </div>
           <label>
@@ -1171,7 +1227,7 @@ function BotEditor({
               </select>
             ) : (
               <input
-                placeholder="Explicit model ID (required for Claude)"
+                placeholder="Provider default, or a model ID (required for API engines)"
                 value={form.model}
                 onChange={(e) => field('model', e.target.value)}
               />
@@ -1733,6 +1789,8 @@ function SettingsView({
   onError: (s: string) => void;
 }) {
   const [key, setKey] = useState('');
+  const [apiProvider, setApiProvider] = useState<ApiProvider>('claude');
+  const [loginHint, setLoginHint] = useState('');
   const [keySaved, setKeySaved] = useState(false);
   return (
     <div className="page-scroll">
@@ -1750,17 +1808,27 @@ function SettingsView({
       {snapshot.engines.map((e) => (
         <article className="engine-card" key={e.engine}>
           <div className="row">
-            <h3>
-              {e.engine === 'codex'
-                ? 'Codex'
-                : e.engine === 'claude'
-                  ? 'Claude Agent'
-                  : 'Offline demo'}
-            </h3>
+            <h3>{engineNames[e.engine]}</h3>
             <Status state={e.state} />
           </div>
           <p>{e.detail}</p>
           <small>{e.version}</small>
+          {['codex', 'claude-code'].includes(e.engine) && e.state !== 'ready' && (
+            <button
+              onClick={async () => {
+                try {
+                  await window.relay.signIn(e.engine as 'codex' | 'claude-code');
+                  setLoginHint(
+                    'Finish native sign-in in your browser, then click Check readiness.',
+                  );
+                } catch (error) {
+                  onError(String(error));
+                }
+              }}
+            >
+              Sign in
+            </button>
+          )}
           {e.models.length > 0 && (
             <details>
               <summary>{e.models.length} provider-reported models</summary>
@@ -1769,13 +1837,14 @@ function SettingsView({
           )}
         </article>
       ))}
+      {loginHint && <p role="status">{loginHint}</p>}
       {snapshot.workspace !== 'demo' && (
         <form
           className="key-form"
           onSubmit={async (e) => {
             e.preventDefault();
             try {
-              await window.relay.setClaudeKey(key);
+              await window.relay.setApiKey(apiProvider, key);
               setKey('');
               setKeySaved(true);
               await invoke({ action: 'readiness' });
@@ -1785,7 +1854,22 @@ function SettingsView({
           }}
         >
           <label>
-            Anthropic API key
+            API provider
+            <select
+              value={apiProvider}
+              onChange={(e) => {
+                setApiProvider(e.target.value as ApiProvider);
+                setKey('');
+                setKeySaved(false);
+              }}
+            >
+              <option value="claude">Anthropic</option>
+              <option value="grok">xAI · Grok</option>
+              <option value="gemini">Google AI Studio · Gemini</option>
+            </select>
+          </label>
+          <label>
+            API key
             <input
               type="password"
               autoComplete="off"
@@ -1794,12 +1878,12 @@ function SettingsView({
                 setKey(e.target.value);
                 setKeySaved(false);
               }}
-              placeholder="sk-ant-…"
+              placeholder={{ claude: 'sk-ant-…', grok: 'xai-…', gemini: 'AIza…' }[apiProvider]}
             />
           </label>
           <p className="subtle">
-            Encrypted with Windows DPAPI outside the renderer. Saving a key enables API-billed tasks
-            when you select Claude. No claude.ai subscription reuse.
+            Stored with Windows encryption. API tasks use separate provider billing. Codex and
+            Claude Code use native sign-in above; they do not need a key here.
           </p>
           <div className="row">
             <button className="primary" disabled={!key.trim()}>
@@ -1808,9 +1892,13 @@ function SettingsView({
             <button
               type="button"
               onClick={async () => {
-                await window.relay.setClaudeKey('');
-                setKeySaved(false);
-                await invoke({ action: 'readiness' });
+                try {
+                  await window.relay.setApiKey(apiProvider, '');
+                  setKeySaved(false);
+                  await invoke({ action: 'readiness' });
+                } catch (error) {
+                  onError(String(error));
+                }
               }}
             >
               Remove stored key

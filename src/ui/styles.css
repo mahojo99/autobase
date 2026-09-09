@@ -270,30 +270,16 @@ svg {
   font-size: 13px;
   font-weight: 600;
 }
-.avatar[data-bot-name='Optimus Prime'] {
-  background: #2c3448;
-  color: #bccdec;
-}
-.avatar[data-bot-name='Bumblebee'] {
-  background: #3b3425;
-  color: #efd18a;
-}
-.avatar[data-bot-name='Ratchet'] {
-  background: #293a33;
-  color: #acd7c0;
-}
-.avatar[data-bot-name='Wheeljack'] {
-  background: #353044;
-  color: #d0bee9;
-}
-.avatar[data-bot-name='Arcee'] {
-  background: #3d2c3a;
-  color: #e6b6d5;
-}
 .avatar.big {
   width: 40px;
   height: 40px;
   font-size: 17px;
+}
+.character-icon {
+  width: 94%;
+  height: 94%;
+  filter: grayscale(1) contrast(2) invert(1);
+  mix-blend-mode: screen;
 }
 .working-dot,
 .status i,

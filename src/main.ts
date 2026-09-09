@@ -15,6 +15,9 @@ import { join, resolve, relative, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { mkdirSync, existsSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { homedir } from 'node:os';
+import { spawn, type ChildProcess } from 'node:child_process';
+import { findCodex } from './runtime/engines/rpc';
+import { findNative, nativeEnvironment } from './runtime/engines/native-process';
 import { commandSchema } from './shared/contracts';
 import { z } from 'zod';
 import { APP_NAME } from './shared/branding';
@@ -35,6 +38,7 @@ let win: BrowserWindow | null = null;
 let worker: UtilityProcess;
 let sequence = 1;
 let exiting = false;
+const logins = new Map<string, ChildProcess>();
 const pending = new Map<
   number,
   { resolve: (value: any) => void; reject: (e: Error) => void; timer: NodeJS.Timeout }
@@ -126,12 +130,18 @@ else {
             text: 'The local runtime stopped. Relaunch Autobase to recover retained work.',
           });
       });
-      const keyPath = join(dataDir, 'claude-key.encrypted');
-      if (existsSync(keyPath) && safeStorage.isEncryptionAvailable()) {
-        try {
-          await request({ type: 'key', key: safeStorage.decryptString(readFileSync(keyPath)) });
-        } catch {
-          /* UI readiness reports missing credentials if DPAPI cannot decrypt. */
+      for (const provider of ['claude', 'grok', 'gemini'] as const) {
+        const keyPath = join(dataDir, `${provider}-key.encrypted`);
+        if (existsSync(keyPath) && safeStorage.isEncryptionAvailable()) {
+          try {
+            await request({
+              type: 'key',
+              provider,
+              key: safeStorage.decryptString(readFileSync(keyPath)),
+            });
+          } catch {
+            /* UI readiness reports missing credentials if DPAPI cannot decrypt. */
+          }
         }
       }
       ipcMain.handle('relay:command', (event, workspace, raw) => {
@@ -162,20 +172,66 @@ else {
         await request({ type: 'folder', workspace, folder });
         return folder;
       });
-      ipcMain.handle('relay:key', async (event, raw) => {
+      async function saveApiKey(
+        event: Electron.IpcMainInvokeEvent,
+        rawProvider: unknown,
+        raw: unknown,
+      ) {
         sender(event);
+        const provider = z.enum(['claude', 'grok', 'gemini']).parse(rawProvider);
+        const keyPath = join(dataDir, `${provider}-key.encrypted`);
         const key = z.string().max(500).parse(raw).trim();
         if (!key) {
           if (existsSync(keyPath)) rmSync(keyPath);
-          await request({ type: 'key', key: '' });
+          await request({ type: 'key', provider, key: '' });
           return;
         }
-        if (!key.startsWith('sk-ant-'))
-          throw new Error('Enter an Anthropic API key. Subscription tokens are not supported.');
+        const prefix = { claude: 'sk-ant-', grok: 'xai-', gemini: 'AIza' }[provider];
+        if (!key.startsWith(prefix) || /\s/.test(key))
+          throw new Error(
+            `Enter a ${provider} API key beginning with ${prefix}. Subscription tokens do not belong in this field.`,
+          );
         if (!safeStorage.isEncryptionAvailable())
           throw new Error('Windows credential encryption is unavailable. No key was stored.');
         writeFileSync(keyPath, safeStorage.encryptString(key));
-        await request({ type: 'key', key });
+        await request({ type: 'key', provider, key });
+      }
+      ipcMain.handle('relay:key', (event, raw) => saveApiKey(event, 'claude', raw));
+      ipcMain.handle('relay:api-key', saveApiKey);
+      ipcMain.handle('relay:sign-in', async (event, raw) => {
+        sender(event);
+        const engine = z.enum(['codex', 'claude-code']).parse(raw);
+        if (logins.has(engine))
+          throw new Error(
+            'Sign-in is already open. Finish it in your browser, then check readiness.',
+          );
+        const exe = engine === 'codex' ? findCodex() : findNative('claude');
+        if (!exe) throw new Error(`Install ${engine === 'codex' ? 'Codex' : 'Claude Code'} first.`);
+        const cwd = join(dataDir, 'native-login');
+        mkdirSync(cwd, { recursive: true });
+        // The unmodified CLI owns browser OAuth and its credential store. Autobase does
+        // not receive a token, account details, or raw authentication console output.
+        const child = spawn(exe, engine === 'codex' ? ['login'] : ['auth', 'login'], {
+          cwd,
+          env: nativeEnvironment(),
+          windowsHide: true,
+          shell: false,
+          stdio: 'ignore',
+        });
+        logins.set(engine, child);
+        const timer = setTimeout(() => child.kill(), 10 * 60 * 1000);
+        timer.unref();
+        child.once('close', () => {
+          clearTimeout(timer);
+          logins.delete(engine);
+        });
+        await new Promise<void>((resolveLogin, reject) => {
+          child.once('spawn', resolveLogin);
+          child.once('error', () => {
+            logins.delete(engine);
+            reject(new Error('Native sign-in could not start.'));
+          });
+        });
       });
       ipcMain.handle('relay:artifact', async (event, ws, raw) => {
         sender(event);
@@ -228,6 +284,7 @@ else {
     if (exiting || !worker) return;
     event.preventDefault();
     exiting = true;
+    for (const child of logins.values()) child.kill();
     void request({ type: 'stop' })
       .catch(() => worker.kill())
       .finally(() => app.quit());

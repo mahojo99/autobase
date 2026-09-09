@@ -4,6 +4,7 @@ import { resolve, join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import type { Snapshot, Task } from '../../src/shared/contracts';
+import { SPECIALIST_NAMES } from '../../src/shared/branding';
 const executablePath = resolve('release/Autobase-win32-x64/Autobase.exe');
 const env = { ...process.env };
 delete env.ELECTRON_RUN_AS_NODE;
@@ -113,4 +114,114 @@ test('Packaged Windows app: SQLite, native SDK executable, live Codex, close/reo
       2,
     ),
   );
+});
+
+test('Packaged Claude subscription: automatic names, two real helpers, shared context and restart', async () => {
+  test.setTimeout(360000);
+  mkdirSync(resolve('.cache/packaged-tests'), { recursive: true });
+  const dataDir = mkdtempSync(resolve('.cache/packaged-tests/claude-'));
+  const app = await electron.launch({ executablePath, env: { ...env, RELAY_DATA_DIR: dataDir } });
+  let before: Snapshot;
+  try {
+    const page = await app.firstWindow();
+    await expect(page.getByRole('heading', { name: 'Optimus Prime' })).toBeVisible();
+    await expect
+      .poll(async () =>
+        page.evaluate(
+          async () =>
+            (await window.relay.invoke<Snapshot>('personal', { action: 'snapshot' })).engines.find(
+              (e) => e.engine === 'claude-code',
+            )?.state,
+        ),
+      )
+      .toBe('ready');
+    await page.evaluate(async () => {
+      await window.relay.invoke('personal', {
+        action: 'update_bot',
+        botId: 'orchestrator',
+        patch: { engine: 'claude-code', model: '', effort: 'medium' },
+      });
+      await window.relay.invoke('personal', {
+        action: 'memory',
+        kind: 'decision',
+        text: 'Autobase verification decision: names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.',
+      });
+      await window.relay.invoke('personal', { action: 'settings', patch: { maxRunSeconds: 300 } });
+    });
+    await page
+      .getByRole('textbox', { name: 'Message Optimus Prime' })
+      .fill(
+        'Authorized bounded live Claude subscription check. Retrieve the Autobase verification decision with relay_search_context and relay_read_context. Create exactly two persistent specialists, one fact checker and one reviewer. Omit their names so the runtime assigns unused Autobot names. Delegate exactly two small tasks: the fact checker computes 17 times 19; the reviewer checks that arithmetic and the supplied decision. Pass the retrieved decision and its source ID to each. No external tools or file reads. Wait for the real child results, synthesize under 100 words, save verification.md and call relay_finish with the actual bot IDs, child IDs and source ID as evidence.',
+      );
+    await page.getByRole('button', { name: 'Send message' }).click();
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(
+            async () =>
+              (await window.relay.invoke<Snapshot>('personal', { action: 'snapshot' })).tasks.find(
+                (t) => !t.parentId,
+              )?.state,
+          ),
+        { timeout: 310000 },
+      )
+      .toBe('completed');
+    before = await page.evaluate(() =>
+      window.relay.invoke<Snapshot>('personal', { action: 'snapshot' }),
+    );
+    const helpers = before.bots.filter((b) => b.id !== 'orchestrator');
+    expect(helpers).toHaveLength(2);
+    expect(new Set(helpers.map((b) => b.name)).size).toBe(2);
+    expect(helpers.every((b) => SPECIALIST_NAMES.includes(b.name as any) && !b.temporary)).toBe(
+      true,
+    );
+    expect(before.tasks.filter((t) => t.parentId && t.state === 'completed')).toHaveLength(2);
+    expect(
+      before.runs.every(
+        (r) => r.snapshot.engine === 'claude-code' && r.providerSession && r.resolvedModel,
+      ),
+    ).toBe(true);
+    expect(before.runs.every((r) => r.usage?.costUsd === undefined)).toBe(true);
+    expect(before.events.some((e) => e.text.startsWith('relay_read_context'))).toBe(true);
+    expect(before.messages.some((m) => m.role === 'assistant' && m.text.includes('323'))).toBe(
+      true,
+    );
+    expect(before.artifacts.some((a) => a.name === 'verification.md')).toBe(true);
+    await page.screenshot({ path: 'docs/screenshots/09-packaged-live-claude.png' });
+    writeFileSync(
+      resolve('.cache/packaged-claude-verification.json'),
+      JSON.stringify(
+        {
+          verifiedAt: new Date().toISOString(),
+          live: true,
+          dataDir,
+          tasks: before.tasks,
+          runs: before.runs,
+          bots: before.bots,
+          artifacts: before.artifacts,
+          events: before.events,
+        },
+        null,
+        2,
+      ),
+    );
+  } finally {
+    await app.close();
+  }
+  const restart = await electron.launch({
+    executablePath,
+    env: { ...env, RELAY_DATA_DIR: dataDir },
+  });
+  try {
+    const page = await restart.firstWindow();
+    await expect(page.getByRole('heading', { name: 'Optimus Prime' })).toBeVisible();
+    const after = await page.evaluate(() =>
+      window.relay.invoke<Snapshot>('personal', { action: 'snapshot' }),
+    );
+    expect(after.bots).toEqual(before!.bots);
+    expect(after.tasks).toEqual(before!.tasks);
+    expect(after.runs).toEqual(before!.runs);
+  } finally {
+    await restart.close();
+  }
 });

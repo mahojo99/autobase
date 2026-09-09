@@ -1,5 +1,7 @@
 # Astra build handoff — Relay
 
+Owner update: the product is now **Autobase**, with automatically assigned Autobot identities and corresponding monochrome portraits, independent of role. The latest Claude subscription request is implemented through unmodified native Claude Code, separately from the API-authenticated SDK. Read the updated PRD note and provider references before applying the original authentication wording below. Current verified scope and blockers are in `docs/verification.md`.
+
 You are implementing Relay in this repository using the user-requested gpt-6-astra with xhigh reasoning. Read AGENTS.md, docs/PRD.md, and docs/REFERENCES.md in full. Then build the product, not just a plan or a static prototype. The owner has authorized this local implementation and validation.
 
 Relay is an original portfolio desktop application: the user talks to one persistent orchestrator, which can set up bots, assign tasks, retrieve shared context, supervise bounded delegation, and return useful results. This orchestrator-first interaction is the central requirement. “Total context” means scoped access to durable workspace knowledge with retrieval and provenance, not putting all history into every prompt.

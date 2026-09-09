@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import type {
   Bot,
+  ApiProvider,
   Command,
   ContextRecord,
   Decision,
@@ -27,10 +28,13 @@ import { artifactPath, createArtifact, fetchPublicPage, readWorkspace } from './
 import { probeComputer } from './computer';
 import { CodexAdapter } from './engines/codex';
 import { ClaudeAdapter } from './engines/claude';
+import { ClaudeNativeAdapter } from './engines/claude-native';
+import { ApiAdapter } from './engines/api';
 import { DemoAdapter } from './engines/demo';
 import type { EngineAdapter } from './engines/types';
 import { safeError } from './engines/types';
 import { redact } from './redaction';
+import { assignBotName, validateBotRename } from './bot-names';
 
 type Execution = {
   controller: AbortController;
@@ -64,13 +68,16 @@ export class Runtime {
     dir: string,
     readonly workspace: Workspace,
     readonly emit: (event: Push) => void = () => {},
-    getKey: () => string | undefined = () => undefined,
+    getKey: (provider?: ApiProvider) => string | undefined = () => undefined,
     adapters?: Partial<Record<Engine, EngineAdapter>>,
   ) {
     this.store = new Store(dir, workspace);
     this.adapters = {
       codex: new CodexAdapter(join(dir, 'work')),
-      claude: new ClaudeAdapter(getKey),
+      claude: new ClaudeAdapter(() => getKey('claude')),
+      'claude-code': new ClaudeNativeAdapter(join(dir, 'work')),
+      grok: new ApiAdapter('grok', () => getKey('grok')),
+      gemini: new ApiAdapter('gemini', () => getKey('gemini')),
       demo: new DemoAdapter(),
       ...adapters,
     };
@@ -97,7 +104,13 @@ export class Runtime {
     this.engines = await Promise.all(
       (this.workspace === 'demo'
         ? [this.adapters.demo]
-        : [this.adapters.codex, this.adapters.claude]
+        : [
+            this.adapters.codex,
+            this.adapters['claude-code'],
+            this.adapters.grok,
+            this.adapters.gemini,
+            this.adapters.claude,
+          ]
       ).map((a) => a.readiness()),
     );
     this.changed();
@@ -173,6 +186,8 @@ export class Runtime {
           throw new Error('The workspace orchestrator cannot be archived.');
         if (patch.engine) this.checkEngine(patch.engine);
         const updated = { ...bot, ...patch };
+        if (patch.name || (bot.archived && !updated.archived))
+          validateBotRename(bot, updated.name, this.store.all<Bot>('bots'));
         if (updated.engine === 'codex' && updated.model) {
           const models = this.engines.find((e) => e.engine === 'codex')?.models ?? [];
           if (
@@ -625,7 +640,7 @@ export class Runtime {
           const bot: Bot = {
             ...structuredClone(ex.run.snapshot),
             id: uid('bot'),
-            name: a.name,
+            name: assignBotName(this.store.all<Bot>('bots'), a.name),
             role: a.role,
             instructions: a.instructions,
             temporary: !a.persistent,
@@ -654,6 +669,8 @@ export class Runtime {
               throw new Error('Configure the engine’s supported authentication in Settings first.');
           }
           const updated = { ...bot, ...a.patch };
+          if (a.patch.name || (bot.archived && !updated.archived))
+            validateBotRename(bot, updated.name, this.store.all<Bot>('bots'));
           this.store.saveBot(updated);
           return updated;
         });

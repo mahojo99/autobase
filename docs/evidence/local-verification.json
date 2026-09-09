@@ -1,11 +1,11 @@
 {
-  "recordedAt": "2026-09-09T18:39:01.570Z",
+  "recordedAt": "2026-09-09T19:47:28.408Z",
   "branch": "feature/desktop-foundation",
   "product": "Autobase",
-  "note": "Live creation/delegation entries retain the original foundation evidence. Packaged live and screenshots are from the Autobase redesign.",
+  "note": "Codex creation/delegation entries retain original foundation evidence. Packaged Codex and Claude and screenshots verify the current Autobase character/naming and provider build.",
   "automatedCoverage": {
     "domainAdapterRuntime": {
-      "passed": 35,
+      "passed": 42,
       "failed": 0
     },
     "electron": {
@@ -13,7 +13,7 @@
       "failed": 0
     },
     "packagedLive": {
-      "passed": 1,
+      "passed": 2,
       "failed": 0
     },
     "defaultConversationAxeViolations": 0,
@@ -284,7 +284,7 @@
   },
   "packagedLive": {
     "task": {
-      "id": "task_72d5e1b0-2ac6-4a2d-a14e-f2555c3f4e48",
+      "id": "task_b1d83987-e5a3-4c70-8882-940a1ea50a16",
       "botId": "orchestrator",
       "conversationId": "conversation_orchestrator",
       "parentId": null,
@@ -298,30 +298,30 @@
         "web": false
       },
       "state": "completed",
-      "createdAt": "2026-09-09T18:38:13.603Z",
-      "updatedAt": "2026-09-09T18:38:30.668Z",
+      "createdAt": "2026-09-09T19:42:31.934Z",
+      "updatedAt": "2026-09-09T19:42:50.105Z",
       "outcome": {
         "status": "success",
         "summary": "Created persistent research bot Bumblebee with instructions to check supplied facts against evidence; 17 × 19 = 323.",
         "evidence": [
-          "Arithmetic: 17 × 19 = 17 × (20 − 1) = 340 − 17 = 323.",
-          "relay_create_bot returned created bot ID bot_7a5e3739-e4a4-40a0-a975-14500638ab1c, name Bumblebee, role Research specialist, and temporary=false.",
-          "Created bot instructions require checking supplied facts against evidence and stating uncertainties and access limitations."
+          "relay_create_bot returned bot ID bot_f0f0159a-076d-407e-b27b-6daeba652037, name Bumblebee, role Research bot, temporary=false.",
+          "Created bot instructions require checking supplied facts against evidence and explicitly noting uncertainty and access limitations.",
+          "Answer: 323. Arithmetic: 17 × 19 = 17 × (20 − 1) = 340 − 17 = 323."
         ],
         "uncertainty": [
-          "No web or file access was used; no work was delegated, and the new bot was not run."
+          "No web or file access was used; no delegation occurred. Bot creation and configuration were verified, but its research behavior was not tested."
         ],
         "blockers": [],
         "artifacts": [
-          "artifact_1e073771-8c6f-4501-a134-d57639aa3cfd"
+          "artifact_d50ccc3e-e2e6-4b4a-8220-26bc20e7270c"
         ]
       },
       "error": null,
       "scheduleId": null
     },
     "run": {
-      "id": "run_2bd51ed3-97d2-4d00-b507-7cb426ffd27e",
-      "taskId": "task_72d5e1b0-2ac6-4a2d-a14e-f2555c3f4e48",
+      "id": "run_eb187d7e-f5de-4156-951e-a4858f7379b7",
+      "taskId": "task_b1d83987-e5a3-4c70-8882-940a1ea50a16",
       "attempt": 1,
       "state": "completed",
       "snapshot": {
@@ -338,30 +338,346 @@
         },
         "archived": false,
         "temporary": false,
-        "createdAt": "2026-09-09T18:38:12.955Z"
+        "createdAt": "2026-09-09T19:42:28.634Z"
       },
-      "startedAt": "2026-09-09T18:38:13.608Z",
-      "endedAt": "2026-09-09T18:38:30.668Z",
-      "providerSession": "01a08776-a255-77c1-b822-a6ceb033d7ed",
+      "startedAt": "2026-09-09T19:42:31.939Z",
+      "endedAt": "2026-09-09T19:42:50.105Z",
+      "providerSession": "01a087b1-8214-7c70-98a5-ccc69681c8e9",
       "adapterVersion": "Codex App Server 0.153.4 (experimental dynamic tools)",
-      "text": "17 × 19 = 340 − 17 = 323; persistent research bot Bumblebee was created, with no web/file access or delegation used.",
+      "text": "Created persistent research bot Bumblebee; 17 × 19 = 323, with no web access, file access, or delegation.",
       "usage": {
-        "input": 21687,
-        "output": 278
+        "input": 21857,
+        "output": 285
       },
-      "handoff": "{\"sessionPolicy\":\"A new compatible provider session for each run. This scoped handoff preserves visible continuity; native sessions are never transferred across engines.\",\"overview\":{\"bots\":[{\"id\":\"orchestrator\",\"name\":\"Optimus Prime\",\"role\":\"Workspace orchestrator\"}],\"activeTasks\":[{\"id\":\"task_72d5e1b0-2ac6-4a2d-a14e-f2555c3f4e48\",\"title\":\"This is a bounded live Autobase packaged-app check. Use relay_create_bot to create one persistent re\",\"state\":\"queued\"}],\"userMemory\":[]},\"recentConversation\":[],\"selectedContext\":\"\",\"previousAttempt\":null}",
+      "handoff": "{\"sessionPolicy\":\"A new compatible provider session for each run. This scoped handoff preserves visible continuity; native sessions are never transferred across engines.\",\"overview\":{\"bots\":[{\"id\":\"orchestrator\",\"name\":\"Optimus Prime\",\"role\":\"Workspace orchestrator\"}],\"activeTasks\":[{\"id\":\"task_b1d83987-e5a3-4c70-8882-940a1ea50a16\",\"title\":\"This is a bounded live Autobase packaged-app check. Use relay_create_bot to create one persistent re\",\"state\":\"queued\"}],\"userMemory\":[]},\"recentConversation\":[],\"selectedContext\":\"\",\"previousAttempt\":null}",
       "folder": null,
       "resolvedModel": "gpt-6-astra"
     },
     "restartPreserved": true,
     "executable": "release/Autobase-win32-x64/Autobase.exe",
-    "exeSha256": "005dbba5d1bc4a150b8793c71af38b283492c656cbef447729c2cf388ec3282d",
-    "appAsarSha256": "d92b80280ac2b3fabf96418a0d61af78a11edd8b7c3e281990b682047f03b2a5"
+    "exeSha256": "ea20a17c1fcd18c1a693c19274a81881a24129fc48be138d42a54b5ad53b4e17",
+    "appAsarSha256": "312604cc34fc41c8b88ca2b44cf0233097c475dd883679f86056d49044cf9183"
   },
   "liveHttp": {
     "url": "https://example.com/",
     "text": " Example Domain Example Domain This domain is for use in documentation examples without needing permission. Avoid use in operations. Learn more ",
     "fetchedAt": "2026-09-09T17:27:26.634Z"
+  },
+  "packagedClaude": {
+    "verifiedAt": "2026-09-09T19:44:01.197Z",
+    "live": true,
+    "authentication": "Existing native Claude Pro login; no credentials copied or imported",
+    "restartPreserved": true,
+    "tasks": [
+      {
+        "id": "task_c90c5418-d7f5-4651-891f-3d8dc141094c",
+        "botId": "orchestrator",
+        "conversationId": "conversation_orchestrator",
+        "parentId": null,
+        "title": "Authorized bounded live Claude subscription check. Retrieve the Autobase verification decision with ",
+        "objective": "Authorized bounded live Claude subscription check. Retrieve the Autobase verification decision with relay_search_context and relay_read_context. Create exactly two persistent specialists, one fact checker and one reviewer. Omit their names so the runtime assigns unused Autobot names. Delegate exactly two small tasks: the fact checker computes 17 times 19; the reviewer checks that arithmetic and the supplied decision. Pass the retrieved decision and its source ID to each. No external tools or file reads. Wait for the real child results, synthesize under 100 words, save verification.md and call relay_finish with the actual bot IDs, child IDs and source ID as evidence.",
+        "criteria": "Answer the request with evidence and explicit limitations.",
+        "context": "",
+        "depth": 0,
+        "scope": {
+          "files": false,
+          "web": false
+        },
+        "state": "completed",
+        "createdAt": "2026-09-09T19:42:57.946Z",
+        "updatedAt": "2026-09-09T19:44:00.618Z",
+        "outcome": {
+          "status": "success",
+          "summary": "Retrieved Autobase decision (memory_886fa358-3edd-4bfa-bf45-f9c8d6bcbefa): \"names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.\" Created two persistent specialists: Fact Checker \"Jazz\" (bot_701ed4a3-6a90-43ca-b6ad-374d319f504a) and Reviewer \"Wheeljack\" (bot_4d983d10-b285-48aa-9d64-cd715a74e7a3). Jazz computed 17×19=323. Wheeljack confirmed arithmetic PASS and found the decision statement internally consistent (PASS). Saved verification.md artifact.",
+          "evidence": [
+            "Source decision sourceId: memory_886fa358-3edd-4bfa-bf45-f9c8d6bcbefa",
+            "Bot created: Jazz (Fact Checker) bot_701ed4a3-6a90-43ca-b6ad-374d319f504a",
+            "Bot created: Wheeljack (Reviewer) bot_4d983d10-b285-48aa-9d64-cd715a74e7a3",
+            "Child task_88e8a71c-6dd8-43d2-acff-f6b1dbf75ce8: 17×19=323, status success",
+            "Child task_f39b5bbd-43c3-43da-8b8c-85d410c36c50: arithmetic PASS, decision statement PASS, status success",
+            "Artifact saved: artifact_7db13e7a-27ea-44e8-b14c-28f9087d4e36 (verification.md)"
+          ],
+          "uncertainty": [
+            "Reviewer noted the 'fresh workspace = only Optimus Prime' claim was assessed for internal plausibility per stated conventions, not independently re-verified against a live workspace state."
+          ],
+          "blockers": [],
+          "artifacts": [
+            "artifact_7db13e7a-27ea-44e8-b14c-28f9087d4e36",
+            "artifact_462b3507-f49e-49bb-b68b-e5f806bd6c85"
+          ]
+        },
+        "error": null,
+        "scheduleId": null
+      },
+      {
+        "id": "task_88e8a71c-6dd8-43d2-acff-f6b1dbf75ce8",
+        "botId": "bot_701ed4a3-6a90-43ca-b6ad-374d319f504a",
+        "conversationId": "conversation_bot_701ed4a3-6a90-43ca-b6ad-374d319f504a",
+        "parentId": "task_c90c5418-d7f5-4651-891f-3d8dc141094c",
+        "title": "Compute 17 times 19 and state the result.",
+        "objective": "Compute 17 times 19 and state the result.",
+        "criteria": "Return the correct numeric product with a one-line justification.",
+        "context": "Supplied decision (for context only, not part of the arithmetic task): \"Autobase verification decision: names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.\" (sourceId: memory_886fa358-3edd-4bfa-bf45-f9c8d6bcbefa)",
+        "depth": 1,
+        "scope": {
+          "files": false,
+          "web": false
+        },
+        "state": "completed",
+        "createdAt": "2026-09-09T19:43:14.500Z",
+        "updatedAt": "2026-09-09T19:43:25.292Z",
+        "outcome": {
+          "status": "success",
+          "summary": "17 × 19 = 323 (computed as 17×20 − 17 = 340 − 17 = 323).",
+          "evidence": [
+            "Direct arithmetic: 17×19 = 17×(20-1) = 340-17 = 323"
+          ],
+          "uncertainty": [],
+          "blockers": [],
+          "artifacts": [
+            "artifact_c7f80642-6d8d-425a-986e-d0b5231e02b0"
+          ]
+        },
+        "error": null,
+        "scheduleId": null
+      },
+      {
+        "id": "task_f39b5bbd-43c3-43da-8b8c-85d410c36c50",
+        "botId": "bot_4d983d10-b285-48aa-9d64-cd715a74e7a3",
+        "conversationId": "conversation_bot_4d983d10-b285-48aa-9d64-cd715a74e7a3",
+        "parentId": "task_c90c5418-d7f5-4651-891f-3d8dc141094c",
+        "title": "Review two things: (1) verify that 17 times 19 equals 323; (2) verify the supplied decision statemen",
+        "objective": "Review two things: (1) verify that 17 times 19 equals 323; (2) verify the supplied decision statement is internally consistent/plausible.",
+        "criteria": "Give explicit pass/fail on the arithmetic (17*19=323) and a brief consistency verdict on the decision text.",
+        "context": "Supplied decision (sourceId: memory_886fa358-3edd-4bfa-bf45-f9c8d6bcbefa): \"Autobase verification decision: names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.\" Arithmetic to check: 17 * 19.",
+        "depth": 1,
+        "scope": {
+          "files": false,
+          "web": false
+        },
+        "state": "completed",
+        "createdAt": "2026-09-09T19:43:16.726Z",
+        "updatedAt": "2026-09-09T19:43:34.539Z",
+        "outcome": {
+          "status": "success",
+          "summary": "Reviewed two items:\n\n1) Arithmetic check: 17 × 19 = 323 — PASS. (17×20=340, minus 17 = 323; confirmed correct.)\n\n2) Decision statement consistency check: \"Autobase verification decision: names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.\" — PASS (internally consistent/plausible). The two clauses are independent, non-contradictory claims: (a) names are identity labels separate from role/capability assignment, and (b) a fresh workspace starts with only the orchestrator (Optimus Prime) present, with specialists created on demand. Both align with standard Autobase runtime conventions and neither statement conflicts with the other.\n\nOverall verdict: Arithmetic PASS; Decision statement PASS (consistent).",
+          "evidence": [
+            "17*19 computed as 17*20-17=340-17=323, matches claimed value 323",
+            "Decision text contains two independent claims (naming vs. roles; fresh-workspace bot count) with no logical contradiction between them or with known Autobase conventions (Optimus Prime as sole initial orchestrator, names not implying role)"
+          ],
+          "uncertainty": [
+            "No independent source was fetched to externally verify the 'fresh workspace = only Optimus Prime' claim beyond the supplied memory record and general runtime instructions; treated as plausible per stated conventions, not independently re-verified against a live workspace state."
+          ],
+          "blockers": [],
+          "artifacts": [
+            "artifact_24827e6e-50e5-4953-9095-4d824c0bcd24"
+          ]
+        },
+        "error": null,
+        "scheduleId": null
+      }
+    ],
+    "runs": [
+      {
+        "id": "run_490a9a8d-4af2-4625-8d64-8f9b1c1dd53d",
+        "taskId": "task_c90c5418-d7f5-4651-891f-3d8dc141094c",
+        "attempt": 1,
+        "state": "completed",
+        "snapshot": {
+          "id": "orchestrator",
+          "name": "Optimus Prime",
+          "role": "Workspace orchestrator",
+          "instructions": "Coordinate useful work with clear evidence. Create reusable bots when requested. Retrieve shared context before claiming past decisions. Delegate only bounded assignments and synthesize the actual outcomes. Be concise and candid.",
+          "engine": "claude-code",
+          "model": "",
+          "effort": "medium",
+          "scope": {
+            "files": false,
+            "web": false
+          },
+          "archived": false,
+          "temporary": false,
+          "createdAt": "2026-09-09T19:42:55.419Z"
+        },
+        "startedAt": "2026-09-09T19:42:57.953Z",
+        "endedAt": "2026-09-09T19:44:00.619Z",
+        "providerSession": "fa0e8a71-a40e-494b-aab6-e0ff742435ed",
+        "adapterVersion": "Claude Code native stream-json (tested 2.1.263)",
+        "text": "**Done.** Retrieved decision (sourceId `memory_886fa358-3edd-4bfa-bf45-f9c8d6bcbefa`): \"names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.\" Created Jazz (Fact Checker, `bot_701ed4a3-6a90-43ca-b6ad-374d319f504a`) and Wheeljack (Reviewer, `bot_4d983d10-b285-48aa-9d64-cd715a74e7a3`). Jazz computed 17×19=323 (child `task_88e8a71c...`); Wheeljack confirmed the arithmetic PASS and rated the decision statement internally consistent, PASS (child `task_f39b5bbd...`). Saved `verification.md`. Limitation: the \"fresh workspace\" claim was checked for plausibility, not against live state.",
+        "usage": {
+          "input": 14,
+          "output": 2702
+        },
+        "handoff": "{\"sessionPolicy\":\"A new compatible provider session for each run. This scoped handoff preserves visible continuity; native sessions are never transferred across engines.\",\"overview\":{\"bots\":[{\"id\":\"orchestrator\",\"name\":\"Optimus Prime\",\"role\":\"Workspace orchestrator\"}],\"activeTasks\":[{\"id\":\"task_c90c5418-d7f5-4651-891f-3d8dc141094c\",\"title\":\"Authorized bounded live Claude subscription check. Retrieve the Autobase verification decision with \",\"state\":\"queued\"}],\"userMemory\":[{\"id\":\"memory_886fa358-3edd-4bfa-bf45-f9c8d6bcbefa\",\"text\":\"Autobase verification decision: names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.\",\"kind\":\"decision\",\"sourceId\":\"memory_886fa358-3edd-4bfa-bf45-f9c8d6bcbefa\",\"createdAt\":\"2026-09-09T19:42:57.857Z\",\"authority\":\"user\",\"excluded\":false,\"supersedes\":null}]},\"recentConversation\":[],\"selectedContext\":\"\",\"previousAttempt\":null}",
+        "folder": null,
+        "resolvedModel": "claude-sonnet-5"
+      },
+      {
+        "id": "run_48e134b9-2acb-4ea8-afe3-ec76a4da9b2b",
+        "taskId": "task_88e8a71c-6dd8-43d2-acff-f6b1dbf75ce8",
+        "attempt": 1,
+        "state": "completed",
+        "snapshot": {
+          "id": "bot_701ed4a3-6a90-43ca-b6ad-374d319f504a",
+          "name": "Jazz",
+          "role": "Fact Checker",
+          "instructions": "You verify small factual/arithmetic claims precisely and report the result with brief justification.",
+          "engine": "claude-code",
+          "model": "",
+          "effort": "medium",
+          "scope": {
+            "files": false,
+            "web": false
+          },
+          "archived": false,
+          "temporary": false,
+          "createdAt": "2026-09-09T19:43:07.617Z"
+        },
+        "startedAt": "2026-09-09T19:43:14.505Z",
+        "endedAt": "2026-09-09T19:43:25.292Z",
+        "providerSession": "a992dc9e-3a26-46af-bdb5-8c6be830bc86",
+        "adapterVersion": "Claude Code native stream-json (tested 2.1.263)",
+        "text": "17 × 19 = **323** — since 17×19 = 17×20 − 17 = 340 − 17 = 323.",
+        "usage": {
+          "input": 6,
+          "output": 495
+        },
+        "handoff": "{\"sessionPolicy\":\"A new compatible provider session for each run. This scoped handoff preserves visible continuity; native sessions are never transferred across engines.\",\"overview\":{\"botId\":\"bot_701ed4a3-6a90-43ca-b6ad-374d319f504a\",\"parentId\":\"task_c90c5418-d7f5-4651-891f-3d8dc141094c\"},\"recentConversation\":[],\"selectedContext\":\"Supplied decision (for context only, not part of the arithmetic task): \\\"Autobase verification decision: names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.\\\" (sourceId: memory_886fa358-3edd-4bfa-bf45-f9c8d6bcbefa)\",\"previousAttempt\":null}",
+        "folder": null,
+        "resolvedModel": "claude-sonnet-5"
+      },
+      {
+        "id": "run_4b26c6a2-683b-49d5-9ced-ca1478ec1b8f",
+        "taskId": "task_f39b5bbd-43c3-43da-8b8c-85d410c36c50",
+        "attempt": 1,
+        "state": "completed",
+        "snapshot": {
+          "id": "bot_4d983d10-b285-48aa-9d64-cd715a74e7a3",
+          "name": "Wheeljack",
+          "role": "Reviewer",
+          "instructions": "You review arithmetic and decision statements for correctness and consistency, and report a clear pass/fail verdict with reasoning.",
+          "engine": "claude-code",
+          "model": "",
+          "effort": "medium",
+          "scope": {
+            "files": false,
+            "web": false
+          },
+          "archived": false,
+          "temporary": false,
+          "createdAt": "2026-09-09T19:43:08.468Z"
+        },
+        "startedAt": "2026-09-09T19:43:18.683Z",
+        "endedAt": "2026-09-09T19:43:34.540Z",
+        "providerSession": "69b1aff7-ab55-4e12-ae15-40693c7f17e9",
+        "adapterVersion": "Claude Code native stream-json (tested 2.1.263)",
+        "text": "**Review results:**\n\n1. **Arithmetic (17 × 19 = 323): PASS** — 17×19 = 17×20 − 17 = 340 − 17 = 323. Correct.\n\n2. **Decision statement consistency: PASS** — \"Names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.\" The two clauses don't contradict each other or known conventions: naming is decoupled from role assignment, and a fresh workspace starting with only the orchestrator present is consistent with on-demand specialist creation. Internally consistent and plausible.",
+        "usage": {
+          "input": 4,
+          "output": 915
+        },
+        "handoff": "{\"sessionPolicy\":\"A new compatible provider session for each run. This scoped handoff preserves visible continuity; native sessions are never transferred across engines.\",\"overview\":{\"botId\":\"bot_4d983d10-b285-48aa-9d64-cd715a74e7a3\",\"parentId\":\"task_c90c5418-d7f5-4651-891f-3d8dc141094c\"},\"recentConversation\":[],\"selectedContext\":\"Supplied decision (sourceId: memory_886fa358-3edd-4bfa-bf45-f9c8d6bcbefa): \\\"Autobase verification decision: names identify bots; roles are independently editable. Only Optimus Prime exists in a fresh workspace.\\\" Arithmetic to check: 17 * 19.\",\"previousAttempt\":null}",
+        "folder": null,
+        "resolvedModel": "claude-sonnet-5"
+      }
+    ],
+    "bots": [
+      {
+        "id": "orchestrator",
+        "name": "Optimus Prime",
+        "role": "Workspace orchestrator",
+        "instructions": "Coordinate useful work with clear evidence. Create reusable bots when requested. Retrieve shared context before claiming past decisions. Delegate only bounded assignments and synthesize the actual outcomes. Be concise and candid.",
+        "engine": "claude-code",
+        "model": "",
+        "effort": "medium",
+        "scope": {
+          "files": false,
+          "web": false
+        },
+        "archived": false,
+        "temporary": false,
+        "createdAt": "2026-09-09T19:42:55.419Z"
+      },
+      {
+        "id": "bot_701ed4a3-6a90-43ca-b6ad-374d319f504a",
+        "name": "Jazz",
+        "role": "Fact Checker",
+        "instructions": "You verify small factual/arithmetic claims precisely and report the result with brief justification.",
+        "engine": "claude-code",
+        "model": "",
+        "effort": "medium",
+        "scope": {
+          "files": false,
+          "web": false
+        },
+        "archived": false,
+        "temporary": false,
+        "createdAt": "2026-09-09T19:43:07.617Z"
+      },
+      {
+        "id": "bot_4d983d10-b285-48aa-9d64-cd715a74e7a3",
+        "name": "Wheeljack",
+        "role": "Reviewer",
+        "instructions": "You review arithmetic and decision statements for correctness and consistency, and report a clear pass/fail verdict with reasoning.",
+        "engine": "claude-code",
+        "model": "",
+        "effort": "medium",
+        "scope": {
+          "files": false,
+          "web": false
+        },
+        "archived": false,
+        "temporary": false,
+        "createdAt": "2026-09-09T19:43:08.468Z"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "artifact_c7f80642-6d8d-425a-986e-d0b5231e02b0",
+        "taskId": "task_88e8a71c-6dd8-43d2-acff-f6b1dbf75ce8",
+        "runId": "run_48e134b9-2acb-4ea8-afe3-ec76a4da9b2b",
+        "name": "result-1.md",
+        "relativePath": "artifact_c7f80642-6d8d-425a-986e-d0b5231e02b0/result-1.md",
+        "bytes": 71,
+        "sha256": "8eb3368f248ec6d029c6cdbf5ee05d172ffe60d32daa4e50d812a5cec6ffdbcc",
+        "createdAt": "2026-09-09T19:43:25.288Z"
+      },
+      {
+        "id": "artifact_24827e6e-50e5-4953-9095-4d824c0bcd24",
+        "taskId": "task_f39b5bbd-43c3-43da-8b8c-85d410c36c50",
+        "runId": "run_4b26c6a2-683b-49d5-9ced-ca1478ec1b8f",
+        "name": "result-1.md",
+        "relativePath": "artifact_24827e6e-50e5-4953-9095-4d824c0bcd24/result-1.md",
+        "bytes": 532,
+        "sha256": "8713e0a410e0ff5095e787e65b2731ad49086b588333bffc5c2c0d9d70cad588",
+        "createdAt": "2026-09-09T19:43:34.535Z"
+      },
+      {
+        "id": "artifact_7db13e7a-27ea-44e8-b14c-28f9087d4e36",
+        "taskId": "task_c90c5418-d7f5-4651-891f-3d8dc141094c",
+        "runId": "run_490a9a8d-4af2-4625-8d64-8f9b1c1dd53d",
+        "name": "verification.md",
+        "relativePath": "artifact_7db13e7a-27ea-44e8-b14c-28f9087d4e36/verification.md",
+        "bytes": 688,
+        "sha256": "78c5164dcceaa8a650ec48d45e75ef4c743c38d7a874671ed96247d351a2d1b1",
+        "createdAt": "2026-09-09T19:43:43.123Z"
+      },
+      {
+        "id": "artifact_462b3507-f49e-49bb-b68b-e5f806bd6c85",
+        "taskId": "task_c90c5418-d7f5-4651-891f-3d8dc141094c",
+        "runId": "run_490a9a8d-4af2-4625-8d64-8f9b1c1dd53d",
+        "name": "result-1.md",
+        "relativePath": "artifact_462b3507-f49e-49bb-b68b-e5f806bd6c85/result-1.md",
+        "bytes": 634,
+        "sha256": "1c93c2a6b0fa030c7c640b4b302326d2852eefaa05bba6ff143d0cc8a0398087",
+        "createdAt": "2026-09-09T19:44:00.613Z"
+      }
+    ]
+  },
+  "apiAdapters": {
+    "grok": "Implemented; protocol fixtures passed; live blocked by missing xAI API key",
+    "gemini": "Implemented; protocol fixtures passed; live blocked by missing Google AI Studio key",
+    "nativeGrokGeminiLogin": "Not implemented"
   },
   "claude": {
     "sdk": "0.3.266",
@@ -379,35 +695,39 @@
   "screenshots": [
     {
       "file": "screenshots/01-conversation.png",
-      "sha256": "0a8a07a5d2430174d2216339287c7cd386f0e7bbf282fa0edd43f35c9dbf31b6"
+      "sha256": "32c0dd775a5efc2b032371be898b01913e3e4e83d6767e874cbdabb8b24b2ea8"
     },
     {
       "file": "screenshots/02-delegation-demo.png",
-      "sha256": "79dca8be3144753f8b8987445cf23976adeb792158aed226358833679959ae8e"
+      "sha256": "860cfa18f97934af6cc30baed358e31534085ce0ba3cc569a9a01c1b8ab82223"
     },
     {
       "file": "screenshots/03-approval-demo.png",
-      "sha256": "32ba0bdd7f075d78554e9a59f391a6dcb7e57e87ba9ae15af2f084618c1693f5"
+      "sha256": "9396dd8b24b1dfd0bef10fb1f8ce4ace8fab4acf3ec55c278e00804f03f793e9"
     },
     {
       "file": "screenshots/04-recovery-demo.png",
-      "sha256": "eb948700842bb8bd7170d60da80d72d69f2688259338769289b9c33245de3386"
+      "sha256": "d5b0be055659becc5f70df98cedbc478a62017ec0c78007ef6c0191811adacb8"
     },
     {
       "file": "screenshots/05-compact-demo.png",
-      "sha256": "4cb86bde0c688b2703ae721d9db5d5b7fdb771ae6c21fbe8debd769a96cec9e2"
+      "sha256": "6d7b3f1699a7399a8164ed3d87b9c7cd4e6e8994bf0f81276366317825671d77"
     },
     {
       "file": "screenshots/06-packaged-live-codex.png",
-      "sha256": "166bb403bcb1079ce05c729ef79c1c15c6d83303c8ecf964617e6939e5ceae17"
+      "sha256": "0858d962e3c9b83019fc4d07a21bcd323aec6f01fb8a988680243e048bb3a73d"
     },
     {
       "file": "screenshots/07-settings.png",
-      "sha256": "ad8bc7d6deba7dc78b576ef1a8a188665aa20cf150e6cdedf159cd29741087a5"
+      "sha256": "f5d5f26ed683c8b6a4755d736aee5439597a6587e7fba1aaede4ef81bc00bc4e"
     },
     {
       "file": "screenshots/08-bot-configuration.png",
-      "sha256": "0b432501b08b0062790142302977a8225cd445e382fc889f6f19dadc4573ad48"
+      "sha256": "fa7f0f16ffdb2543110954543ab663fe76eff64ca0a8b0dbb7af4585d3da475c"
+    },
+    {
+      "file": "screenshots/09-packaged-live-claude.png",
+      "sha256": "504a8062666fa74fd8dd9d2d525616060ebd0b5c9c569d824b855b06c8e2012f"
     }
   ]
 }

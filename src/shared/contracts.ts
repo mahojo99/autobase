@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 export type Workspace = 'personal' | 'demo';
-export type Engine = 'codex' | 'claude' | 'demo';
+export type Engine = 'codex' | 'claude-code' | 'claude' | 'grok' | 'gemini' | 'demo';
+export type ApiProvider = 'claude' | 'grok' | 'gemini';
 export const terminal = ['completed', 'failed', 'cancelled', 'interrupted'] as const;
 export type TaskState =
   | 'queued'
@@ -194,7 +195,7 @@ export type Push = {
 };
 
 const id = z.string().min(1).max(100);
-const engine = z.enum(['codex', 'claude', 'demo']);
+const engine = z.enum(['codex', 'claude-code', 'claude', 'grok', 'gemini', 'demo']);
 export const botPatch = z
   .object({
     name: z.string().min(1).max(60).optional(),
@@ -279,6 +280,8 @@ export interface RelayBridge {
   subscribe(callback: (event: Push) => void): () => void;
   selectFolder(workspace: Workspace): Promise<string | null>;
   setClaudeKey(key: string): Promise<void>;
+  setApiKey(provider: ApiProvider, key: string): Promise<void>;
+  signIn(engine: 'codex' | 'claude-code'): Promise<void>;
   openArtifact(workspace: Workspace, id: string): Promise<void>;
   openExternal(url: string): Promise<void>;
 }

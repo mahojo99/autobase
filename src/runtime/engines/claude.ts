@@ -26,7 +26,7 @@ export class ClaudeAdapter implements EngineAdapter {
       version: this.version,
       detail: this.getKey()
         ? 'API key configured. Select an explicit Claude model to run; API billing applies. Connection is verified on first task.'
-        : 'Add your Anthropic API key in Settings. API billing applies. claude.ai subscription login is not offered.',
+        : 'Optional: add an Anthropic API key for API-billed tasks. Choose Claude Code to use your Claude plan instead.',
       models: [],
     };
   }

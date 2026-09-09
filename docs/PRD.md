@@ -2,6 +2,8 @@
 
 Version: 1.0, September 9, 2026. Working name and implementation choices remain adjustable; the orchestrator-first product direction is the owner's explicit request.
 
+**Owner direction update, September 9:** the product is Autobase, with a simple dark conversation UI. Optimus Prime is the persistent orchestrator; new specialists receive an unused Autobot name independently of role and a corresponding monochrome character portrait. No specialist is mandatory at startup. The owner also requested Claude subscription access and additional Grok/Gemini choices. The delivered native Claude Code path uses the installed unmodified binary and its own sign-in under current provider documentation; the separate SDK path stays API-authenticated. This supersedes the blanket subscription exclusion in the original section 7 below. Grok/Gemini currently use explicit API keys, not native subscription login. Current scope and verified limits are recorded in [architecture](architecture.md) and [verification](verification.md).
+
 ## 1. Purpose and product promise
 
 Build an attractive, usable Windows desktop application in which a person talks to one persistent orchestrator and gets work done through bots. The orchestrator can set up specialist bots, assign tasks, consult shared context, monitor execution, and return a coherent answer with inspectable evidence.
