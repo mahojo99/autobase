@@ -1,6 +1,7 @@
 node_modules/
 .tooling/
 .cache/
+.playwright-mcp/
 dist/
 release/
 .relay-data/

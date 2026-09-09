@@ -4,6 +4,8 @@ Autobase is a Windows desktop app built with Electron, React, TypeScript and SQL
 
 ## Run locally
 
+To try a released build without development tools, use the PowerShell command in the [README](../README.md). The installer downloads the public release, verifies its SHA-256 digest and launches it from `%LOCALAPPDATA%\Autobase`. It needs no administrator access, Git or Node.js. Live providers still require their installed CLIs and sign-in; the offline demo runs immediately.
+
 From PowerShell, with Git and npm installed:
 
 ```powershell

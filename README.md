@@ -1,15 +1,21 @@
 # Autobase
 
-A Grok Bot-inspired desktop harness that lets frontier models create bots, delegate tasks and share context. I made it to use with my own Codex and Claude subscriptions.
+Autobase gives frontier models a desktop workspace to create bots, delegate tasks and share context.
 
-![Autobase](docs/screenshot.png)
+Inspired by Grok Bot. I made it to use with my own Codex and Claude subscriptions.
 
-## Download
+![Optimus Prime creates Arcee and Wheeljack, delegates writing and review, and saves intro.md](docs/screenshot.png)
 
-1. [Download for Windows](https://github.com/mahojo99/autobase/releases/latest/download/Autobase-windows-x64.zip).
-2. Unzip and open `Autobase.exe`.
-3. Open Settings and sign in with Codex or Claude Code.
+## Quick start
 
-Windows x64. Requires the [Codex CLI](https://github.com/openai/codex) or [Claude Code](https://code.claude.com/docs/en/setup) installed.
+Windows x64. Paste into PowerShell; no Git or Node.js needed:
+
+```powershell
+irm https://raw.githubusercontent.com/mahojo99/autobase/main/scripts/install.ps1 | iex
+```
+
+Try the offline demo immediately. For live tasks, install [Codex CLI](https://github.com/openai/codex) or [Claude Code](https://code.claude.com/docs/en/setup), then sign in through Settings.
+
+[Download ZIP instead](https://github.com/mahojo99/autobase/releases/latest/download/Autobase-windows-x64.zip) · [Installer source](scripts/install.ps1)
 
 [Development](docs/development.md)
