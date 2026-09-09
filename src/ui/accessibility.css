@@ -1,0 +1,153 @@
+/* Secondary copy remains readable at normal Windows scaling. */
+.bot-link small {
+  color: #9eb29f;
+}
+.sidebar-bottom p span {
+  color: #96ab9a;
+}
+.breadcrumb,
+.runtime-label,
+.agent-heading p,
+.text-button,
+.eyebrow,
+.welcome > p,
+.suggestions > button > span,
+.empty-note,
+.engine-chip,
+.keyboard-hint,
+.composer-caption,
+.details-title,
+.continuity h3,
+.continuity p,
+.section-label,
+.section-label button,
+.details-pane .subtle,
+.local-reminder,
+.memory-mini > span,
+.artifact-mini small,
+.provider-name,
+.message-meta time,
+.working-copy,
+.status,
+.task-card-content small,
+.page-title p,
+.empty-state,
+.empty-state h3,
+.bot-config-card > p,
+dt,
+.context-meta,
+.context-actions button,
+.context-card > small,
+.schedule-card p,
+.schedule-card small,
+.occurrence,
+.engine-card p,
+.engine-card small,
+.engine-card details,
+.settings-box p,
+.key-form .subtle,
+.data-path,
+.task-modal > p,
+.id-row,
+.task-modal > h3,
+.run-detail > summary,
+.run-detail details,
+.timeline time,
+.timeline strong,
+.timeline pre,
+.artifact-row small,
+.outcome h3,
+.outcome ul,
+.decision-history,
+.bot-config-card h3 small,
+.mini-task small,
+.subtle,
+small {
+  color: #606f59;
+}
+.status.running,
+.status.ready,
+.status.completed {
+  color: #3e713e;
+}
+.status.waiting_approval,
+.status.waiting_input,
+.status.waiting_children {
+  color: #826224;
+}
+.status.failed,
+.status.error,
+.status.interrupted {
+  color: #9e4c34;
+}
+.status.cancelled {
+  color: #69705f;
+}
+.decision-card .eyebrow,
+.decision-card p,
+.decision-card > small,
+.decision-options button,
+.decision-card code {
+  color: #796334;
+}
+.decision-options button:first-child {
+  color: #fff6df;
+}
+.context-meta > span {
+  color: #526d36;
+}
+.context-card.excluded,
+.bot-config-card.archived {
+  opacity: 1;
+  border-style: dashed;
+  background: #eeeee7;
+}
+.context-card.excluded .context-meta > b {
+  color: #675f48;
+}
+.composer textarea::placeholder {
+  color: #738168;
+}
+.bot-link small,
+.workspace-switch small {
+  color: #a1b39f;
+}
+.brand > small {
+  color: #a7b998;
+}
+.sidebar-label {
+  color: #a4b899;
+}
+.sidebar-bottom p {
+  color: #b2c1a9;
+}
+.sidebar-bottom p span {
+  color: #95ac98;
+}
+.sidebar .demo-toggle {
+  color: #aebfa4;
+}
+.sidebar .brand small {
+  color: #a7b998;
+}
+.sidebar .bot-link small {
+  color: #a1b39f;
+}
+.composer-caption,
+.details-title,
+.section-label {
+  font-size: 9px;
+}
+.nav,
+.bot-link {
+  font-size: 13px;
+}
+.prose {
+  font-size: 14px;
+}
+.composer textarea {
+  font-size: 13px;
+}
+.suggestions > button {
+  font-size: 12px;
+}
