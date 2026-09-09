@@ -27,6 +27,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { APP_NAME, SPECIALIST_NAMES } from '../shared/branding';
 import bumblebeeIcon from './assets/bots/bumblebee.png';
+import autobotIcon from './assets/bots/autobot.png';
 import optimusIcon from './assets/bots/optimus-prime.png';
 import ratchetIcon from './assets/bots/ratchet.png';
 import wheeljackIcon from './assets/bots/wheeljack.png';
@@ -86,8 +87,8 @@ const date = (value: string) =>
 function Mark({ small = false }: { small?: boolean }) {
   return (
     <span className={`mark ${small ? 'small' : ''}`} aria-hidden="true">
-      <svg viewBox="0 0 32 32">
-        <path d="m6 25 10-19 10 19M10 19h12M16 6v7" />
+      <svg viewBox="9 6 342 330" className="character-icon">
+        <image href={autobotIcon} width="395" height="397" />
       </svg>
     </span>
   );

@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 mkdirSync(resolve('.cache/accessibility'), { recursive: true });
+mkdirSync(resolve('.cache/screenshots'), { recursive: true });
 const env = { ...process.env };
 delete env.ELECTRON_RUN_AS_NODE;
 const app = await electron.launch({
@@ -24,7 +25,7 @@ try {
   await page.getByRole('button', { name: 'Configure bot', exact: true }).click();
   await page.getByRole('dialog', { name: 'Configure bot' }).waitFor();
   await audit('bot configuration');
-  await page.screenshot({ path: 'docs/screenshots/08-bot-configuration.png' });
+  await page.screenshot({ path: '.cache/screenshots/08-bot-configuration.png' });
   await page.getByRole('button', { name: 'Close configuration' }).click();
   await page.getByRole('button', { name: 'Toggle details pane' }).click();
   await page.locator('.details-pane').waitFor();
@@ -34,7 +35,7 @@ try {
     await page.locator('.page-title').waitFor();
     await audit(surface);
   }
-  await page.screenshot({ path: 'docs/screenshots/07-settings.png' });
+  await page.screenshot({ path: '.cache/screenshots/07-settings.png' });
   writeFileSync(resolve('.cache/accessibility/audit.json'), JSON.stringify(surfaces, null, 2));
   console.log(
     JSON.stringify(

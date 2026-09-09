@@ -3,4 +3,5 @@ dist
 release
 .cache
 .tooling
+.local
 package-lock.json

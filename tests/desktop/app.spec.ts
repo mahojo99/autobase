@@ -6,7 +6,7 @@ import type { Snapshot, Task } from '../../src/shared/contracts';
 const env = { ...process.env };
 delete env.ELECTRON_RUN_AS_NODE;
 mkdirSync(resolve('.cache/desktop-tests'), { recursive: true });
-mkdirSync(resolve('docs/screenshots'), { recursive: true });
+mkdirSync(resolve('.cache/screenshots'), { recursive: true });
 
 test('Electron isolated renderer, live readiness, demo orchestration, approval, and persistence', async () => {
   const dataDir = mkdtempSync(resolve('.cache/desktop-tests/session-'));
@@ -44,7 +44,7 @@ test('Electron isolated renderer, live readiness, demo orchestration, approval, 
     'Create a bot that ',
   );
   await page.getByRole('textbox', { name: 'Message Optimus Prime' }).fill('');
-  await page.screenshot({ path: 'docs/screenshots/01-conversation.png' });
+  await page.screenshot({ path: '.cache/screenshots/01-conversation.png' });
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await expect(page.getByText('Claude Agent SDK 0.3.266', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Try offline demo', exact: true }).click();
@@ -65,7 +65,7 @@ test('Electron isolated renderer, live readiness, demo orchestration, approval, 
       }),
     )
     .toBe(3);
-  await page.screenshot({ path: 'docs/screenshots/02-delegation-demo.png' });
+  await page.screenshot({ path: '.cache/screenshots/02-delegation-demo.png' });
   const helpers = page.locator('.helper-group');
   await expect(helpers).not.toHaveAttribute('open');
   await helpers.locator('summary').click();
@@ -81,7 +81,7 @@ test('Electron isolated renderer, live readiness, demo orchestration, approval, 
   await page.getByRole('textbox', { name: 'Message Optimus Prime' }).fill('Show an approval');
   await page.getByRole('button', { name: 'Send message' }).click();
   await expect(page.getByRole('button', { name: 'Allow once', exact: true })).toBeVisible();
-  await page.screenshot({ path: 'docs/screenshots/03-approval-demo.png' });
+  await page.screenshot({ path: '.cache/screenshots/03-approval-demo.png' });
   await page.getByRole('button', { name: 'Deny', exact: true }).click();
   await expect(
     page.getByText('The request was denied. No page was read.', { exact: false }).first(),
@@ -269,11 +269,11 @@ test('Desktop context correction, schedule, failure/retry and smaller window', a
     )
     .toBe('completed');
   await page.getByRole('button', { name: 'Work', exact: true }).click();
-  await page.screenshot({ path: 'docs/screenshots/04-recovery-demo.png' });
+  await page.screenshot({ path: '.cache/screenshots/04-recovery-demo.png' });
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1000, 740));
   await page.getByRole('button', { name: 'Optimus Prime Your orchestrator', exact: true }).click();
   await expect(page.getByRole('textbox', { name: 'Message Optimus Prime' })).toBeVisible();
-  await page.screenshot({ path: 'docs/screenshots/05-compact-demo.png' });
+  await page.screenshot({ path: '.cache/screenshots/05-compact-demo.png' });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );

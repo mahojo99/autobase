@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import type { Snapshot, Task } from '../../src/shared/contracts';
 import { SPECIALIST_NAMES } from '../../src/shared/branding';
 const executablePath = resolve('release/Autobase-win32-x64/Autobase.exe');
+mkdirSync(resolve('.cache/screenshots'), { recursive: true });
 const env = { ...process.env };
 delete env.ELECTRON_RUN_AS_NODE;
 
@@ -79,7 +80,7 @@ test('Packaged Windows app: SQLite, native SDK executable, live Codex, close/reo
     before.artifacts[0].id,
   );
   expect(existsSync(artifactPath)).toBe(true);
-  await page.screenshot({ path: 'docs/screenshots/06-packaged-live-codex.png' });
+  await page.screenshot({ path: '.cache/screenshots/06-packaged-live-codex.png' });
   await app.close();
   expect(existsSync(join(dataDir, 'personal/relay.sqlite'))).toBe(true);
   const restart = await electron.launch({
@@ -187,7 +188,7 @@ test('Packaged Claude subscription: automatic names, two real helpers, shared co
       true,
     );
     expect(before.artifacts.some((a) => a.name === 'verification.md')).toBe(true);
-    await page.screenshot({ path: 'docs/screenshots/09-packaged-live-claude.png' });
+    await page.screenshot({ path: '.cache/screenshots/09-packaged-live-claude.png' });
     writeFileSync(
       resolve('.cache/packaged-claude-verification.json'),
       JSON.stringify(

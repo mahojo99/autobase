@@ -1,5 +1,6 @@
 import { build } from 'esbuild';
 import { build as viteBuild } from 'vite';
+import { copyFile } from 'node:fs/promises';
 await build({
   entryPoints: ['src/main.ts', 'src/preload.ts', 'src/runtime/worker.ts'],
   outdir: 'dist',
@@ -13,3 +14,4 @@ await build({
   sourcemap: true,
 });
 await viteBuild({ base: './', build: { outDir: 'dist/ui', emptyOutDir: true } });
+await copyFile('src/ui/assets/autobase.ico', 'dist/autobase.ico');

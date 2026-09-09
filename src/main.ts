@@ -253,6 +253,7 @@ else {
         minWidth: 960,
         minHeight: 640,
         title: APP_NAME,
+        icon: join(__dirname, 'autobase.ico'),
         backgroundColor: '#171719',
         autoHideMenuBar: true,
         show: false,
