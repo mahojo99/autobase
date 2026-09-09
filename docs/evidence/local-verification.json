@@ -1,9 +1,11 @@
 {
-  "recordedAt": "2026-09-09T17:46:27.286Z",
+  "recordedAt": "2026-09-09T18:39:01.570Z",
   "branch": "feature/desktop-foundation",
+  "product": "Autobase",
+  "note": "Live creation/delegation entries retain the original foundation evidence. Packaged live and screenshots are from the Autobase redesign.",
   "automatedCoverage": {
     "domainAdapterRuntime": {
-      "passed": 34,
+      "passed": 35,
       "failed": 0
     },
     "electron": {
@@ -14,7 +16,41 @@
       "passed": 1,
       "failed": 0
     },
-    "defaultConversationAxeViolations": 0
+    "defaultConversationAxeViolations": 0,
+    "accessibilitySurfaces": [
+      {
+        "surface": "conversation",
+        "violations": 0
+      },
+      {
+        "surface": "bot configuration",
+        "violations": 0
+      },
+      {
+        "surface": "conversation with details",
+        "violations": 0
+      },
+      {
+        "surface": "Work",
+        "violations": 0
+      },
+      {
+        "surface": "Shared context",
+        "violations": 0
+      },
+      {
+        "surface": "Schedules",
+        "violations": 0
+      },
+      {
+        "surface": "Manage bots",
+        "violations": 0
+      },
+      {
+        "surface": "Settings",
+        "violations": 0
+      }
+    ]
   },
   "versions": {
     "electron": "44.3.0",
@@ -248,12 +284,12 @@
   },
   "packagedLive": {
     "task": {
-      "id": "task_739c4f6f-0a78-4355-91ec-d294fde52f0e",
+      "id": "task_72d5e1b0-2ac6-4a2d-a14e-f2555c3f4e48",
       "botId": "orchestrator",
       "conversationId": "conversation_orchestrator",
       "parentId": null,
-      "title": "This is a bounded live packaged-app check. Compute 17 × 19 without external tools. Call relay_finish",
-      "objective": "This is a bounded live packaged-app check. Compute 17 × 19 without external tools. Call relay_finish with the answer and the arithmetic as evidence, then give one short sentence.",
+      "title": "This is a bounded live Autobase packaged-app check. Use relay_create_bot to create one persistent re",
+      "objective": "This is a bounded live Autobase packaged-app check. Use relay_create_bot to create one persistent research bot named Bumblebee, with instructions to check supplied facts against evidence. Compute 17 × 19 without web or file access. Call relay_finish with the answer, arithmetic, and created bot ID as evidence, then give one short sentence. Do not delegate.",
       "criteria": "Answer the request with evidence and explicit limitations.",
       "context": "",
       "depth": 0,
@@ -262,31 +298,35 @@
         "web": false
       },
       "state": "completed",
-      "createdAt": "2026-09-09T17:44:39.683Z",
-      "updatedAt": "2026-09-09T17:44:52.333Z",
+      "createdAt": "2026-09-09T18:38:13.603Z",
+      "updatedAt": "2026-09-09T18:38:30.668Z",
       "outcome": {
         "status": "success",
-        "summary": "17 × 19 = 323, computed directly without external calculation tools.",
+        "summary": "Created persistent research bot Bumblebee with instructions to check supplied facts against evidence; 17 × 19 = 323.",
         "evidence": [
-          "17 × 19 = 17 × (20 − 1) = 340 − 17 = 323."
+          "Arithmetic: 17 × 19 = 17 × (20 − 1) = 340 − 17 = 323.",
+          "relay_create_bot returned created bot ID bot_7a5e3739-e4a4-40a0-a975-14500638ab1c, name Bumblebee, role Research specialist, and temporary=false.",
+          "Created bot instructions require checking supplied facts against evidence and stating uncertainties and access limitations."
         ],
-        "uncertainty": [],
+        "uncertainty": [
+          "No web or file access was used; no work was delegated, and the new bot was not run."
+        ],
         "blockers": [],
         "artifacts": [
-          "artifact_ec87a613-0306-4f6d-8b30-96629bbe1f4e"
+          "artifact_1e073771-8c6f-4501-a134-d57639aa3cfd"
         ]
       },
       "error": null,
       "scheduleId": null
     },
     "run": {
-      "id": "run_ae27c8e1-3078-45a4-8aec-59ae84bb30d1",
-      "taskId": "task_739c4f6f-0a78-4355-91ec-d294fde52f0e",
+      "id": "run_2bd51ed3-97d2-4d00-b507-7cb426ffd27e",
+      "taskId": "task_72d5e1b0-2ac6-4a2d-a14e-f2555c3f4e48",
       "attempt": 1,
       "state": "completed",
       "snapshot": {
         "id": "orchestrator",
-        "name": "Relay",
+        "name": "Optimus Prime",
         "role": "Workspace orchestrator",
         "instructions": "Coordinate useful work with clear evidence. Create reusable bots when requested. Retrieve shared context before claiming past decisions. Delegate only bounded assignments and synthesize the actual outcomes. Be concise and candid.",
         "engine": "codex",
@@ -298,25 +338,25 @@
         },
         "archived": false,
         "temporary": false,
-        "createdAt": "2026-09-09T17:44:38.544Z"
+        "createdAt": "2026-09-09T18:38:12.955Z"
       },
-      "startedAt": "2026-09-09T17:44:39.692Z",
-      "endedAt": "2026-09-09T17:44:52.333Z",
-      "providerSession": "01a08745-98bc-7913-97e6-8fa76e69321e",
+      "startedAt": "2026-09-09T18:38:13.608Z",
+      "endedAt": "2026-09-09T18:38:30.668Z",
+      "providerSession": "01a08776-a255-77c1-b822-a6ceb033d7ed",
       "adapterVersion": "Codex App Server 0.153.4 (experimental dynamic tools)",
-      "text": "17 × 19 = 323.",
+      "text": "17 × 19 = 340 − 17 = 323; persistent research bot Bumblebee was created, with no web/file access or delegation used.",
       "usage": {
-        "input": 13967,
-        "output": 154
+        "input": 21687,
+        "output": 278
       },
-      "handoff": "{\"sessionPolicy\":\"A new compatible provider session for each run. This scoped handoff preserves visible continuity; native sessions are never transferred across engines.\",\"overview\":{\"bots\":[{\"id\":\"orchestrator\",\"name\":\"Relay\",\"role\":\"Workspace orchestrator\"}],\"activeTasks\":[{\"id\":\"task_739c4f6f-0a78-4355-91ec-d294fde52f0e\",\"title\":\"This is a bounded live packaged-app check. Compute 17 × 19 without external tools. Call relay_finish\",\"state\":\"queued\"}],\"userMemory\":[]},\"recentConversation\":[],\"selectedContext\":\"\",\"previousAttempt\":null}",
+      "handoff": "{\"sessionPolicy\":\"A new compatible provider session for each run. This scoped handoff preserves visible continuity; native sessions are never transferred across engines.\",\"overview\":{\"bots\":[{\"id\":\"orchestrator\",\"name\":\"Optimus Prime\",\"role\":\"Workspace orchestrator\"}],\"activeTasks\":[{\"id\":\"task_72d5e1b0-2ac6-4a2d-a14e-f2555c3f4e48\",\"title\":\"This is a bounded live Autobase packaged-app check. Use relay_create_bot to create one persistent re\",\"state\":\"queued\"}],\"userMemory\":[]},\"recentConversation\":[],\"selectedContext\":\"\",\"previousAttempt\":null}",
       "folder": null,
       "resolvedModel": "gpt-6-astra"
     },
     "restartPreserved": true,
-    "executable": "release/Relay-win32-x64/Relay.exe",
-    "exeSha256": "a02815058131259af9eedc5a6e233585d511b1ee4a60f1e20635cd785df320a1",
-    "appAsarSha256": "9ab97288e469d461fd99dd4f59c6b9a89bc47a9d642fd9feb51341f77d081825"
+    "executable": "release/Autobase-win32-x64/Autobase.exe",
+    "exeSha256": "005dbba5d1bc4a150b8793c71af38b283492c656cbef447729c2cf388ec3282d",
+    "appAsarSha256": "d92b80280ac2b3fabf96418a0d61af78a11edd8b7c3e281990b682047f03b2a5"
   },
   "liveHttp": {
     "url": "https://example.com/",
@@ -339,27 +379,35 @@
   "screenshots": [
     {
       "file": "screenshots/01-conversation.png",
-      "sha256": "03516a5a58494a8cae23d7dfd618bf3027998d5720cc05a507e04b9486836706"
+      "sha256": "0a8a07a5d2430174d2216339287c7cd386f0e7bbf282fa0edd43f35c9dbf31b6"
     },
     {
       "file": "screenshots/02-delegation-demo.png",
-      "sha256": "49e051f27ecee21e56c3c423c2e952121ed6c735f210f9e8383731e02e42d2d9"
+      "sha256": "79dca8be3144753f8b8987445cf23976adeb792158aed226358833679959ae8e"
     },
     {
       "file": "screenshots/03-approval-demo.png",
-      "sha256": "b1ed474efebcd8733aa65a23be5db0579f34e576a156598b1854dd629bd6e8ca"
+      "sha256": "32ba0bdd7f075d78554e9a59f391a6dcb7e57e87ba9ae15af2f084618c1693f5"
     },
     {
       "file": "screenshots/04-recovery-demo.png",
-      "sha256": "15244f0f44bc62253391a08feb2c1dd9ce09818d47f4a42047af207b1925029f"
+      "sha256": "eb948700842bb8bd7170d60da80d72d69f2688259338769289b9c33245de3386"
     },
     {
       "file": "screenshots/05-compact-demo.png",
-      "sha256": "b471c7d5cca39f0f28cb76519168f6f0626f9c7058d9e4eb9f2cdce34e3901fb"
+      "sha256": "4cb86bde0c688b2703ae721d9db5d5b7fdb771ae6c21fbe8debd769a96cec9e2"
     },
     {
       "file": "screenshots/06-packaged-live-codex.png",
-      "sha256": "f9b7fdc6505d6ae782409d3ead5387b6bcbd685b0ca51de0cd1fbe1fc2752556"
+      "sha256": "166bb403bcb1079ce05c729ef79c1c15c6d83303c8ecf964617e6939e5ceae17"
+    },
+    {
+      "file": "screenshots/07-settings.png",
+      "sha256": "ad8bc7d6deba7dc78b576ef1a8a188665aa20cf150e6cdedf159cd29741087a5"
+    },
+    {
+      "file": "screenshots/08-bot-configuration.png",
+      "sha256": "0b432501b08b0062790142302977a8225cd445e382fc889f6f19dadc4573ad48"
     }
   ]
 }

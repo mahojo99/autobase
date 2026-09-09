@@ -76,7 +76,7 @@ export class ClaudeAdapter implements EngineAdapter {
       includePartialMessages: true,
       canUseTool: async (name) => ({
         behavior: 'deny',
-        message: `Unsupported tool ${name}. Use Relay's validated MCP tools.`,
+        message: `Unsupported tool ${name}. Use Autobase's validated MCP tools.`,
       }),
       env: {
         PATH: process.env.PATH,

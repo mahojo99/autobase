@@ -4,6 +4,7 @@ import {
   dialog,
   ipcMain,
   net,
+  nativeTheme,
   protocol,
   safeStorage,
   shell,
@@ -16,12 +17,20 @@ import { mkdirSync, existsSync, readFileSync, writeFileSync, rmSync } from 'node
 import { homedir } from 'node:os';
 import { commandSchema } from './shared/contracts';
 import { z } from 'zod';
+import { APP_NAME } from './shared/branding';
 
 protocol.registerSchemesAsPrivileged([
   { scheme: 'relay', privileges: { standard: true, secure: true, supportFetchAPI: true } },
 ]);
-if (process.env.RELAY_DATA_DIR) app.setPath('userData', resolve(process.env.RELAY_DATA_DIR));
-app.setName('Relay');
+// Keep the existing installation's data location across the product rename.
+app.setPath(
+  'userData',
+  process.env.RELAY_DATA_DIR
+    ? resolve(process.env.RELAY_DATA_DIR)
+    : join(app.getPath('appData'), 'Relay'),
+);
+app.setName(APP_NAME);
+nativeTheme.themeSource = 'dark';
 let win: BrowserWindow | null = null;
 let worker: UtilityProcess;
 let sequence = 1;
@@ -83,7 +92,7 @@ else {
       const dataDir = app.getPath('userData');
       mkdirSync(dataDir, { recursive: true });
       worker = utilityProcess.fork(join(__dirname, 'runtime', 'worker.cjs'), [dataDir], {
-        serviceName: 'Relay local runtime',
+        serviceName: 'Autobase local runtime',
         stdio: 'pipe',
         env: Object.fromEntries(
           Object.entries(process.env).filter(
@@ -107,14 +116,14 @@ else {
       worker.on('exit', (code) => {
         for (const p of pending.values()) {
           clearTimeout(p.timer);
-          p.reject(new Error(`Local runtime exited (${code}). Relaunch Relay to recover work.`));
+          p.reject(new Error(`Local runtime exited (${code}). Relaunch Autobase to recover work.`));
         }
         pending.clear();
         if (!exiting)
           win?.webContents.send('relay:event', {
             workspace: 'personal',
             kind: 'runtime_error',
-            text: 'The local runtime stopped. Relaunch Relay to recover retained work.',
+            text: 'The local runtime stopped. Relaunch Autobase to recover retained work.',
           });
       });
       const keyPath = join(dataDir, 'claude-key.encrypted');
@@ -187,8 +196,8 @@ else {
         height: 940,
         minWidth: 960,
         minHeight: 640,
-        title: 'Relay',
-        backgroundColor: '#f6f5f1',
+        title: APP_NAME,
+        backgroundColor: '#171719',
         autoHideMenuBar: true,
         show: false,
         webPreferences: {
@@ -211,7 +220,7 @@ else {
       await win.loadURL('relay://app/index.html');
     })
     .catch((e) => {
-      dialog.showErrorBox('Relay could not start', String(e));
+      dialog.showErrorBox('Autobase could not start', String(e));
       app.quit();
     });
   app.on('window-all-closed', () => app.quit());

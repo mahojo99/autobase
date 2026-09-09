@@ -72,18 +72,18 @@ export class CodexAdapter implements EngineAdapter {
         return {
           ...base,
           state: 'error',
-          detail: `Found ${v}. Relay pins ${CODEX_VERSION}; verify the adapter before using another protocol version.`,
+          detail: `Found ${v}. Autobase pins ${CODEX_VERSION}; verify the adapter before using another protocol version.`,
         };
       rpc = this.createClient(executable);
       await rpc.initialize();
       const account = await rpc.call('account/read', { refreshToken: false });
-      // Relay's first release only uses supported native ChatGPT login, avoiding ambient paid API keys.
+      // Autobase's first release only uses supported native ChatGPT login, avoiding ambient paid API keys.
       if (!account.account || account.account.type !== 'chatgpt')
         return {
           ...base,
           state: 'authentication_required',
           detail:
-            'Run codex login with your supported ChatGPT account. Relay does not import tokens or use ambient API keys.',
+            'Run codex login with your supported ChatGPT account. Autobase does not import tokens or use ambient API keys.',
         };
       const result = await rpc.call('model/list', { includeHidden: false, limit: 100 });
       return {
@@ -150,7 +150,7 @@ export class CodexAdapter implements EngineAdapter {
         if (!['dynamicToolCall', 'plan'].includes(p.item.type))
           rejectTurn(
             new Error(
-              `Unsupported built-in tool blocked: ${p.item.type}. Use Relay's scoped tools.`,
+              `Unsupported built-in tool blocked: ${p.item.type}. Use Autobase's scoped tools.`,
             ),
           );
       }
@@ -204,7 +204,7 @@ export class CodexAdapter implements EngineAdapter {
       ) {
         input.onActivity(
           'denied',
-          'Host command/file-change tool denied. Only Relay scoped operations are enabled.',
+          'Host command/file-change tool denied. Only Autobase scoped operations are enabled.',
         );
         return { decision: 'decline' };
       }
@@ -221,7 +221,7 @@ export class CodexAdapter implements EngineAdapter {
       const instructionPath = join(input.cwd, 'relay-provider-instructions.txt');
       writeFileSync(
         instructionPath,
-        'You are an agent in Relay. Use only the runtime-provided tools and task-scoped instructions.',
+        'You are an agent in Autobase. Use only the runtime-provided tools and task-scoped instructions.',
       );
       const overrides: Record<string, any> = {
         web_search: 'disabled',

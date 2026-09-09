@@ -2,7 +2,7 @@ import { packager } from '@electron/packager';
 await import('./build.mjs');
 const paths = await packager({
   dir: '.',
-  name: 'Relay',
+  name: 'Autobase',
   platform: 'win32',
   arch: 'x64',
   out: 'release',
@@ -14,11 +14,11 @@ const paths = await packager({
     /(?:^|\/)\.env(?:\.|$)/,
     /\.(?:pem|key|sqlite|db)(?:-|$)/,
   ],
-  executableName: 'Relay',
+  executableName: 'Autobase',
   win32metadata: {
-    CompanyName: 'Relay',
-    FileDescription: 'Relay bot workspace',
-    ProductName: 'Relay',
+    CompanyName: 'Autobase',
+    FileDescription: 'Autobase bot workspace',
+    ProductName: 'Autobase',
   },
 });
 console.log(paths.join('\n'));

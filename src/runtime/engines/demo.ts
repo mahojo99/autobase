@@ -51,17 +51,17 @@ export class DemoAdapter implements EngineAdapter {
     } else if (/recover|failure|delegate|research|comparison|team/i.test(task)) {
       const bots = (await invoke('relay_list_bots', {})) as Bot[];
       const researcher =
-        bots.find((b) => b.name === 'Researcher') ??
+        bots.find((b) => b.name === 'Bumblebee') ??
         ((await invoke('relay_create_bot', {
-          name: 'Researcher',
+          name: 'Bumblebee',
           role: 'Research and evidence',
           instructions: 'Examine the provided material and return concise findings with sources.',
           persistent: true,
         })) as Bot);
       const reviewer =
-        bots.find((b) => b.name === 'Reviewer') ??
+        bots.find((b) => b.name === 'Ratchet') ??
         ((await invoke('relay_create_bot', {
-          name: 'Reviewer',
+          name: 'Ratchet',
           role: 'Independent review',
           instructions: 'Check conclusions against the supplied evidence.',
           persistent: true,
@@ -72,20 +72,20 @@ export class DemoAdapter implements EngineAdapter {
           ? 'Demo: fail the first attempt, then recover on retry.'
           : 'Examine the supplied demo brief.',
         criteria: 'Return a finding with evidence.',
-        context: 'Demo brief: Relay coordinates persistent bots with linked tasks.',
+        context: 'Demo brief: Autobase coordinates persistent bots with linked tasks.',
       });
       await invoke('relay_delegate', {
         botId: reviewer.id,
         objective: 'Review the demo product direction.',
         criteria: 'Identify one strength and one limitation.',
         context:
-          'Demo brief: Relay is a local orchestrator workspace; schedules require a running computer.',
+          'Demo brief: Autobase is a local orchestrator workspace; schedules require a running computer.',
       });
       const children = (await invoke('relay_wait_children', {})) as Task[];
       const failed = children.filter((c) => c.state !== 'completed');
       answer = failed.length
         ? 'The reviewer completed its check, but the research helper failed in this offline scenario. I can only give a partial comparison. Open the failed helper in Work and choose Retry; both attempts remain visible. No failed assignment is counted as finished.'
-        : 'The research and review assignments are complete.\n\n**Recommendation:** keep the orchestrator conversation central, with linked work available for inspection. Both helpers used the supplied demo brief.\n\n**Limitation:** local schedules require the computer and Relay to be running. This is an offline fixture, not live research.';
+        : 'The research and review assignments are complete.\n\n**Recommendation:** keep the orchestrator conversation central, with linked work available for inspection. Both helpers used the supplied demo brief.\n\n**Limitation:** local schedules require the computer and Autobase to be running. This is an offline fixture, not live research.';
       await invoke('relay_write_artifact', {
         name: 'demo-comparison.md',
         content: `# Demo comparison\n\n${answer}\n\nSource: supplied offline fixture.`,
@@ -99,7 +99,7 @@ export class DemoAdapter implements EngineAdapter {
       });
     } else if (/create.*bot/i.test(task)) {
       const bot = (await invoke('relay_create_bot', {
-        name: 'Writing partner',
+        name: 'Arcee',
         role: 'Clear, concise writing',
         instructions: 'Help draft and review short documents.',
         persistent: true,
@@ -107,7 +107,7 @@ export class DemoAdapter implements EngineAdapter {
       answer = `Created **${bot.name}** as a persistent demo bot. Its configuration is available in Bots and will survive a restart. It uses the offline fixture engine.`;
     } else {
       const context = await invoke('relay_search_context', { query: task });
-      answer = `This is Relay’s **offline Demo workspace**. I can show real local bot creation, linked task state, approvals, failure and retry using deterministic fixtures.\n\nTry “Delegate a comparison to a researcher and reviewer”, “Show an approval”, or “Demonstrate helper failure and recovery”.\n\nRetrieved ${(context as unknown[]).length} local context records. No provider or virtual computer is connected to this demo.`;
+      answer = `This is Autobase’s **offline Demo workspace**. I can show real local bot creation, linked task state, approvals, failure and retry using deterministic fixtures.\n\nTry “Delegate a comparison to a researcher and reviewer”, “Show an approval”, or “Demonstrate helper failure and recovery”.\n\nRetrieved ${(context as unknown[]).length} local context records. No provider or virtual computer is connected to this demo.`;
     }
     for (const word of answer.match(/\S+\s*/g) ?? []) {
       await delay(12, undefined, { signal: input.signal });

@@ -4,7 +4,7 @@ import { resolve, join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import type { Snapshot, Task } from '../../src/shared/contracts';
-const executablePath = resolve('release/Relay-win32-x64/Relay.exe');
+const executablePath = resolve('release/Autobase-win32-x64/Autobase.exe');
 const env = { ...process.env };
 delete env.ELECTRON_RUN_AS_NODE;
 
@@ -13,16 +13,14 @@ test('Packaged Windows app: SQLite, native SDK executable, live Codex, close/reo
   const dataDir = mkdtempSync(resolve('.cache/packaged-tests/session-'));
   const app = await electron.launch({ executablePath, env: { ...env, RELAY_DATA_DIR: dataDir } });
   let page = await app.firstWindow();
-  await expect(
-    page.getByRole('heading', { name: 'Your workspace, in conversation.' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Optimus Prime' })).toBeVisible();
   const versions = await app.evaluate(() => ({
     electron: process.versions.electron,
     node: process.versions.node,
     chrome: process.versions.chrome,
   }));
   const sdkNative = resolve(
-    'release/Relay-win32-x64/resources/app.asar.unpacked/node_modules/@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe',
+    'release/Autobase-win32-x64/resources/app.asar.unpacked/node_modules/@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe',
   );
   expect(existsSync(sdkNative)).toBe(true);
   const sdkVersion = (
@@ -51,9 +49,9 @@ test('Packaged Windows app: SQLite, native SDK executable, live Codex, close/reo
     });
   });
   await page
-    .getByRole('textbox', { name: 'Message Relay' })
+    .getByRole('textbox', { name: 'Message Optimus Prime' })
     .fill(
-      'This is a bounded live packaged-app check. Compute 17 × 19 without external tools. Call relay_finish with the answer and the arithmetic as evidence, then give one short sentence.',
+      'This is a bounded live Autobase packaged-app check. Use relay_create_bot to create one persistent research bot named Bumblebee, with instructions to check supplied facts against evidence. Compute 17 × 19 without web or file access. Call relay_finish with the answer, arithmetic, and created bot ID as evidence, then give one short sentence. Do not delegate.',
     );
   await page.getByRole('button', { name: 'Send message' }).click();
   await expect
@@ -73,6 +71,8 @@ test('Packaged Windows app: SQLite, native SDK executable, live Codex, close/reo
   );
   expect(before.messages.some((m) => m.role === 'assistant' && m.text.includes('323'))).toBe(true);
   expect(before.runs[0].providerSession).toBeTruthy();
+  expect(before.bots.find((b) => b.id === 'orchestrator')?.name).toBe('Optimus Prime');
+  expect(before.bots.some((b) => b.name === 'Bumblebee' && !b.temporary)).toBe(true);
   const artifactPath = await page.evaluate(
     (id) => window.relay.invoke<string>('personal', { action: 'artifact_path', id }),
     before.artifacts[0].id,
@@ -86,15 +86,14 @@ test('Packaged Windows app: SQLite, native SDK executable, live Codex, close/reo
     env: { ...env, RELAY_DATA_DIR: dataDir },
   });
   page = await restart.firstWindow();
-  await expect(
-    page.getByRole('heading', { name: 'Your workspace, in conversation.' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Optimus Prime' })).toBeVisible();
   const after = await page.evaluate(() =>
     window.relay.invoke<Snapshot>('personal', { action: 'snapshot' }),
   );
   expect(after.tasks[0].state).toBe('completed');
   expect(after.runs[0].id).toBe(before.runs[0].id);
   expect(after.messages).toEqual(before.messages);
+  expect(after.bots).toEqual(before.bots);
   await restart.close();
   writeFileSync(
     resolve('.cache/packaged-verification.json'),

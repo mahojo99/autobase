@@ -1,9 +1,9 @@
 {
-  "name": "relay-desktop",
+  "name": "autobase-desktop",
   "version": "0.1.0",
   "private": true,
   "description": "A local conversation with an orchestrator and its bots",
-  "author": "Relay contributors",
+  "author": "Autobase contributors",
   "license": "UNLICENSED",
   "type": "module",
   "main": "dist/main.cjs",

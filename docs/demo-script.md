@@ -1,10 +1,10 @@
-# Five-minute Relay demo
+# Five-minute Autobase demo
 
-Open `release\Relay-win32-x64\Relay.exe`. Begin offline so a reviewer needs no credentials. Keep the Demo banner visible when showing fixture results.
+Open `release\Autobase-win32-x64\Autobase.exe`. Begin offline so a reviewer needs no credentials. Keep the Demo banner visible when showing fixture results.
 
-**0:00–0:40 — Start in the conversation.** Show the persistent orchestrator and compact workspace notes. Click **Explore the offline demo**. Explain: “These responses are deterministic fixtures. The queue, bot records, decisions, database, and output files are actual local operations.”
+**0:00–0:40 — Start in the conversation.** Show Optimus Prime, the compact bot list, and the dark conversation. Work details are closed by default. Click **Try offline demo**. Explain: “These responses are deterministic fixtures. The queue, bot records, decisions, database, and output files are actual local operations.”
 
-**0:40–1:50 — Assemble help and inspect it.** Send **Delegate a comparison to a researcher and reviewer**. Watch two persistent bots and their linked assignments appear. Open **Inspect work** to show the outcome, frozen run configuration, source handoff, and timeline. Open `demo-comparison.md` using its registered artifact control. No progress percentage or external research is fabricated.
+**0:40–1:50 — Assemble help and inspect it.** Send **Delegate a comparison to a researcher and reviewer**. Watch Bumblebee and Ratchet appear in the bot list. Expand the helper summary to inspect their linked assignments. Open **Inspect work** to show the outcome, frozen run configuration, source handoff, and timeline. Open `demo-comparison.md` using its registered artifact control. No progress percentage or external research is fabricated.
 
 **1:50–2:35 — Deny an exact action.** Send **Show an approval**. Inspect the action, target, reason, expiry, and one-time options. Choose **Deny**. The result acknowledges that no page was read. This fixture performs no network request; actual public-page reads use the same runtime approval binding.
 
@@ -12,6 +12,6 @@ Open `release\Relay-win32-x64\Relay.exe`. Begin offline so a reviewer needs no c
 
 **3:20–4:10 — Make context inspectable.** Add “Keep comparison summaries under 150 words” as a decision in **Shared context**. Search it and show its owner authority, source ID, correction, and exclusion controls. Open **Schedules**, create a weekday occurrence with a named timezone, inspect its next run, edit it, then disable it. Explain the requirement for an available local runtime and awake computer.
 
-**4:10–5:00 — Distinguish real connectivity.** Return to the real workspace and open **Settings & engines**. Show discovered Codex models and the independent Claude credential state. With authorized native Codex login, ask **Create a concise writing bot and confirm its configuration.** That is a real provider call. Otherwise show the [recorded packaged live screenshot](screenshots/06-packaged-live-codex.png) and [verification evidence](verification.md), identifying them as recorded checks.
+**4:10–5:00 — Distinguish real connectivity.** Return to the real workspace and open **Settings**. Show discovered Codex models and the independent Claude credential state. With authorized native Codex login, ask **Create a concise writing bot and confirm its configuration.** That is a real provider call. Otherwise show the [recorded packaged live screenshot](screenshots/06-packaged-live-codex.png) and [verification evidence](verification.md), identifying them as recorded checks.
 
 Close and reopen the app to show persisted history. Show the optional computer prerequisite state: no guest is connected. Do not describe demo fixtures or a screenshot as live VM/provider connectivity.

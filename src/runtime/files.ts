@@ -132,7 +132,7 @@ export async function fetchPublicPage(
           opts.all ? cb(null, [addresses[0]]) : cb(null, addresses[0].address, 4),
         timeout: 15000,
         headers: {
-          'User-Agent': 'Relay/0.1 public-page-reader',
+          'User-Agent': 'Autobase/0.1 public-page-reader',
           Accept: 'text/html,text/plain,application/json',
         },
       },

@@ -1,6 +1,10 @@
-# Relay architecture
+# Autobase architecture
 
-Relay is an independent, local Electron application. Its default interaction is a persistent orchestrator conversation. Bots, assignments, results, and shared context are real runtime records; the interface is not a provider-chat mockup.
+Autobase is an independent, local Electron application. Its default interaction is a persistent conversation with Optimus Prime. Bots, assignments, results, and shared context are real runtime records; the interface is not a provider-chat mockup.
+
+The owner renamed the product from Relay to Autobase and requested a simpler dark interface. The bot list is the main navigation; task details are closed by default, helper assignments expand from one inline summary, and artifacts remain directly accessible in chat. The original letterform and initials avatars use no third-party artwork. Bot naming instructions prefer Bumblebee for research, Wheeljack for building, Ratchet for review, Arcee for writing, and Jazz for planning when the owner has not supplied a name. This affects naming rather than behavior or permissions.
+
+SQLite migration 2 renames only the original `Relay` orchestrator to `Optimus Prime`, once. Custom names, stable bot IDs, messages, and frozen run snapshots are retained. The application explicitly retains `%APPDATA%\Relay`, `relay.sqlite`, the `RELAY_*` environment overrides, and internal `relay_*` tool/IPC names so the visual rename does not create a second workspace or break integrations.
 
 ## Process and authority boundary
 
@@ -36,11 +40,11 @@ Events have monotonic database sequence numbers. The UI reconnects by loading a 
 
 ## Engines and sessions
 
-Codex uses the installed native executable and App Server 0.153.4 over JSONL stdio. `initialize` negotiates `experimentalApi`; `thread/start` registers validated dynamic functions; `item/tool/call` dispatches them into Relay. Native ChatGPT authentication remains owned by Codex. Relay neither reads nor copies login tokens and does not use ambient paid OpenAI API keys. `model/list` supplies the visible catalog. Other CLI versions produce an actionable readiness error until the adapter boundary is verified.
+Codex uses the installed native executable and App Server 0.153.4 over JSONL stdio. `initialize` negotiates `experimentalApi`; `thread/start` registers validated dynamic functions; `item/tool/call` dispatches them into Autobase. Native ChatGPT authentication remains owned by Codex. Autobase neither reads nor copies login tokens and does not use ambient paid OpenAI API keys. `model/list` supplies the visible catalog. Other CLI versions produce an actionable readiness error until the adapter boundary is verified.
 
-App Server and dynamic tool registration are experimental. The integration was checked against the installed CLI-generated TypeScript schemas, not invented SDK methods. Native shell, autonomous subagents, plugins, apps, memories, browser/computer tools, hooks, and discovered host skills are disabled; inherited MCP servers are disabled per run. The tool host remains enabled because dynamic functions require it. Native command/file approvals are denied; bounded Relay tools handle reads and artifact creation.
+App Server and dynamic tool registration are experimental. The integration was checked against the installed CLI-generated TypeScript schemas, not invented SDK methods. Native shell, autonomous subagents, plugins, apps, memories, browser/computer tools, hooks, and discovered host skills are disabled; inherited MCP servers are disabled per run. The tool host remains enabled because dynamic functions require it. Native command/file approvals are denied; bounded Autobase tools handle reads and artifact creation.
 
-Claude uses official `@anthropic-ai/claude-agent-sdk` 0.3.266, `query`, `tool`, and `createSdkMcpServer`. Built-in tools and filesystem settings are disabled. Only Relay MCP tools are registered. A separate app-owned SDK configuration directory and allowlisted subprocess environment prevent reuse of subscription login/configuration. An explicitly supplied API key is encrypted by Electron `safeStorage` (Windows DPAPI). API billing is disclosed at entry. Claude models are explicit editable IDs, not a fabricated catalog. Readiness distinguishes missing credentials from a configured but not yet live-verified engine.
+Claude uses official `@anthropic-ai/claude-agent-sdk` 0.3.266, `query`, `tool`, and `createSdkMcpServer`. Built-in tools and filesystem settings are disabled. Only Autobase MCP tools are registered. A separate app-owned SDK configuration directory and allowlisted subprocess environment prevent reuse of subscription login/configuration. An explicitly supplied API key is encrypted by Electron `safeStorage` (Windows DPAPI). API billing is disclosed at entry. Claude models are explicit editable IDs, not a fabricated catalog. Readiness distinguishes missing credentials from a configured but not yet live-verified engine.
 
 Every run starts a fresh compatible provider session with a visible handoff containing selected context, a compact workspace overview, recent indexed conversation, and prior-attempt output where appropriate. The visible conversation persists, but native provider sessions are never presented as portable across engines. This is a deliberate continuity design, at the cost of fresh-session prompt overhead. The build and live checks used `gpt-6-astra` with `xhigh`; new workspace model choice remains the provider default, editable by the owner.
 
@@ -64,7 +68,7 @@ Computer create/start/stop/delete, streamed guest desktop, and guest browser aut
 
 ## Deliberate release limitations
 
-- Retries are explicit at the task level. Authentication failures and denial never loop. Native provider transient retry behavior is bounded by the run timeout; Relay does not retry uncertain tools automatically.
+- Retries are explicit at the task level. Authentication failures and denial never loop. Native provider transient retry behavior is bounded by the run timeout; Autobase does not retry uncertain tools automatically.
 - No arbitrary shell commands, host desktop control, imported MCP-server configuration UI, vector database, tray service, or external notifications.
 - No automatic restoration of native provider sessions after restart; handoff-based continuity is tested instead.
 - The Windows deliverable is a portable, unsigned application directory, not an installer or published release.

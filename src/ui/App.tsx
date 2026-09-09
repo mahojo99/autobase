@@ -4,13 +4,15 @@ import {
   ArrowUpRight,
   Bot as BotIcon,
   Check,
+  ChevronDown,
   ChevronRight,
   CircleHelp,
   Clock3,
   FileText,
   FolderOpen,
   Layers3,
-  MessageSquare,
+  PanelLeftClose,
+  PanelLeftOpen,
   PanelRightClose,
   Plus,
   RotateCcw,
@@ -23,6 +25,7 @@ import {
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { APP_NAME } from '../shared/branding';
 import type {
   Bot,
   Command,
@@ -61,7 +64,7 @@ function Mark({ small = false }: { small?: boolean }) {
   return (
     <span className={`mark ${small ? 'small' : ''}`} aria-hidden="true">
       <svg viewBox="0 0 32 32">
-        <path d="M8 7h9a7 7 0 0 1 0 14H8V7Zm0 9h15M17 21l7 7" />
+        <path d="m6 25 10-19 10 19M10 19h12M16 6v7" />
       </svg>
     </span>
   );
@@ -71,6 +74,17 @@ function Status({ state }: { state: string }) {
     <span className={`status ${state}`}>
       <i />
       {states[state] ?? state.replaceAll('_', ' ')}
+    </span>
+  );
+}
+function BotAvatar({ bot, big = false }: { bot: Bot; big?: boolean }) {
+  return (
+    <span className={`avatar ${big ? 'big' : ''}`} data-bot-name={bot.name} aria-hidden="true">
+      {bot.name
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join('')}
     </span>
   );
 }
@@ -112,7 +126,8 @@ export function App() {
   const [streams, setStreams] = useState<Record<string, string>>({});
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [editBot, setEditBot] = useState<Bot | null>(null);
-  const [details, setDetails] = useState(true);
+  const [details, setDetails] = useState(false);
+  const [sidebar, setSidebar] = useState(true);
   const input = useRef<HTMLTextAreaElement>(null);
   const transcript = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
@@ -169,6 +184,9 @@ export function App() {
     setBotId('orchestrator');
     setSelectedTask(null);
     setStreams({});
+    setDraft('');
+    setView('conversation');
+    setDetails(false);
     void refresh();
   }, [workspace, refresh]);
   useEffect(
@@ -250,7 +268,6 @@ export function App() {
     );
   const bot = snapshot.bots.find((b) => b.id === botId) ?? snapshot.bots[0];
   const pending = snapshot.decisions.filter((d) => d.state === 'pending');
-  const tasks = snapshot.tasks.filter((t) => t.botId === bot.id && !t.parentId);
   const active = snapshot.tasks.filter(isActive);
   const engine = snapshot.engines.find((e) => e.engine === bot.engine);
   const selected = snapshot.tasks.find((t) => t.id === selectedTask);
@@ -268,6 +285,11 @@ export function App() {
     setView('conversation');
     nearBottom.current = true;
   };
+  const createBot = () => {
+    chooseBot('orchestrator');
+    setDraft('Create a bot that ');
+    requestAnimationFrame(() => input.current?.focus());
+  };
   const latestRun = (taskId: string) => snapshot.runs.filter((r) => r.taskId === taskId).at(-1);
   const answer = (decision: Decision, value: string) =>
     invoke({
@@ -279,56 +301,26 @@ export function App() {
   const openArtifact = (id: string) =>
     void window.relay.openArtifact(workspace, id).catch((e) => setError(String(e)));
   return (
-    <div className={`app ${workspace === 'demo' ? 'demo' : ''}`}>
-      <aside className="sidebar">
+    <div
+      className={`app ${workspace === 'demo' ? 'demo' : ''} ${sidebar ? '' : 'sidebar-collapsed'}`}
+    >
+      <aside className="sidebar" aria-label="Bots and workspace" hidden={!sidebar}>
         <div className="brand">
           <Mark small />
-          <span>relay</span>
-          <small>LOCAL</small>
+          <span>{APP_NAME}</span>
+          <button
+            className="icon-button"
+            aria-label="Hide sidebar"
+            title="Hide sidebar"
+            onClick={() => setSidebar(false)}
+          >
+            <PanelLeftClose size={17} />
+          </button>
         </div>
-        <button
-          className="workspace-switch"
-          onClick={() => setWorkspace(workspace === 'personal' ? 'demo' : 'personal')}
-          aria-label="Switch workspace"
-        >
-          <span className="workspace-icon">{workspace === 'demo' ? 'D' : 'M'}</span>
-          <span>
-            {workspace === 'demo' ? 'Demo workspace' : 'My workspace'}
-            <small>
-              {workspace === 'demo' ? 'Offline · simulated' : 'Personal · on this computer'}
-            </small>
-          </span>
-          <ChevronRight size={15} />
-        </button>
-        <nav aria-label="Workspace navigation">
-          {(
-            [
-              { id: 'conversation', label: 'Conversation', icon: MessageSquare },
-              { id: 'work', label: 'Work', icon: Workflow },
-              { id: 'context', label: 'Shared context', icon: Layers3 },
-              { id: 'schedules', label: 'Schedules', icon: Clock3 },
-            ] as const
-          ).map((n) => (
-            <button
-              key={n.id}
-              className={view === n.id ? 'nav active' : 'nav'}
-              onClick={() => {
-                setView(n.id);
-                if (n.id === 'conversation') setBotId('orchestrator');
-              }}
-            >
-              <n.icon size={17} />
-              {n.label}
-              {n.id === 'work' && active.length > 0 && (
-                <span className="count">{active.length}</span>
-              )}
-            </button>
-          ))}
-        </nav>
         <div className="sidebar-label">
-          <span>YOUR BOTS</span>
-          <button title="Inspect bots" aria-label="Inspect bots" onClick={() => setView('bots')}>
-            <Plus size={15} />
+          <span>Bots</span>
+          <button title="Create a bot" aria-label="Create a bot" onClick={createBot}>
+            <Plus size={17} />
           </button>
         </div>
         <div className="bot-nav">
@@ -339,13 +331,13 @@ export function App() {
                 key={b.id}
                 className={`bot-link ${view === 'conversation' && bot.id === b.id ? 'selected' : ''}`}
                 onClick={() => chooseBot(b.id)}
+                aria-current={view === 'conversation' && bot.id === b.id ? 'page' : undefined}
+                title={b.role}
               >
-                <span className={`avatar ${b.id === 'orchestrator' ? 'orchestrator' : ''}`}>
-                  {b.id === 'orchestrator' ? <Mark small /> : b.name.slice(0, 1)}
-                </span>
+                <BotAvatar bot={b} />
                 <span>
                   {b.name}
-                  <small>{b.id === 'orchestrator' ? 'Orchestrator' : b.role}</small>
+                  <small>{b.id === 'orchestrator' ? 'Your orchestrator' : b.role}</small>
                 </span>
                 {snapshot.tasks.some((t) => t.botId === b.id && isActive(t)) && (
                   <i className="working-dot" />
@@ -354,69 +346,111 @@ export function App() {
             ))}
         </div>
         <div className="sidebar-bottom">
-          <p>
-            <i className="local-dot" /> Your work stays organized here.
-            <br />
-            <span>Provider requests use your engine.</span>
-          </p>
+          <nav aria-label="Workspace navigation">
+            {(
+              [
+                { id: 'work', label: 'Work', icon: Workflow },
+                { id: 'context', label: 'Shared context', icon: Layers3 },
+                { id: 'schedules', label: 'Schedules', icon: Clock3 },
+                { id: 'bots', label: 'Manage bots', icon: BotIcon },
+              ] as const
+            ).map((n) => (
+              <button
+                key={n.id}
+                className={`nav ${view === n.id ? 'active' : ''}`}
+                onClick={() => setView(n.id)}
+              >
+                <n.icon size={16} />
+                {n.label}
+                {n.id === 'work' && (pending.length > 0 || active.length > 0) && (
+                  <span className={`count ${pending.length ? 'attention' : ''}`}>
+                    {pending.length || active.length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </nav>
           <button
             className={`nav ${view === 'settings' ? 'active' : ''}`}
             onClick={() => setView('settings')}
           >
-            <Settings2 size={17} />
-            Settings & engines
+            <Settings2 size={16} />
+            Settings
           </button>
           <button
             className="demo-toggle"
             onClick={() => setWorkspace(workspace === 'demo' ? 'personal' : 'demo')}
           >
-            {workspace === 'demo' ? 'Return to real workspace' : 'Explore the offline demo'}
-            <ArrowUpRight size={14} />
+            {workspace === 'demo' ? 'Leave demo' : 'Try offline demo'}
           </button>
         </div>
       </aside>
       <main>
         <header className="topbar">
           <div>
-            <span className="breadcrumb">
-              {workspace === 'demo' ? 'Demo workspace' : 'My workspace'}
-            </span>
-            <ChevronRight size={13} />
-            <strong>
+            {!sidebar && (
+              <button
+                className="icon-button"
+                aria-label="Show sidebar"
+                title="Show sidebar"
+                onClick={() => setSidebar(true)}
+              >
+                <PanelLeftOpen size={18} />
+              </button>
+            )}
+            {view === 'conversation' && <BotAvatar bot={bot} />}
+            <h1>
               {view === 'conversation'
-                ? bot.id === 'orchestrator'
-                  ? 'Conversation'
-                  : bot.name
+                ? bot.name
                 : (
                     {
                       work: 'Work',
                       bots: 'Bots',
                       context: 'Shared context',
                       schedules: 'Schedules',
-                      settings: 'Settings & engines',
+                      settings: 'Settings',
                     } as const
                   )[view]}
-            </strong>
+            </h1>
+            {view === 'conversation' && (
+              <span className="header-role">
+                {bot.id === 'orchestrator' ? 'Orchestrator' : bot.role}
+              </span>
+            )}
           </div>
           <div className="topbar-actions">
-            <span className="runtime-label">
-              <i />
-              Local runtime
-            </span>
-            <button
-              className="icon-button"
-              aria-label="Toggle details pane"
-              title="Toggle details pane"
-              onClick={() => setDetails(!details)}
-            >
-              <PanelRightClose size={18} />
-            </button>
+            {pending.length > 0 && (
+              <button className="attention-button" onClick={() => setView('work')}>
+                <CircleHelp size={15} />
+                {pending.length} needs you
+              </button>
+            )}
+            {view === 'conversation' && (
+              <>
+                <button
+                  className="icon-button"
+                  aria-label="Configure bot"
+                  title="Configure bot"
+                  onClick={() => setEditBot(bot)}
+                >
+                  <Settings2 size={17} />
+                </button>
+                <button
+                  className="icon-button"
+                  aria-label="Toggle details pane"
+                  aria-expanded={details}
+                  title="Work, context & files"
+                  onClick={() => setDetails(!details)}
+                >
+                  <PanelRightClose size={18} />
+                </button>
+              </>
+            )}
           </div>
         </header>
         {workspace === 'demo' && (
           <div className="demo-banner">
-            <span>OFFLINE DEMO</span> Deterministic fixtures in a separate database. No API calls or
-            virtual computer connection.
+            <span>OFFLINE DEMO</span> Simulated responses · separate workspace
           </div>
         )}
         {error && (
@@ -431,27 +465,6 @@ export function App() {
           <section className="main-panel">
             {view === 'conversation' && (
               <>
-                <div className="conversation-heading">
-                  <div className="agent-heading">
-                    <span className="avatar big orchestrator">
-                      {bot.id === 'orchestrator' ? <Mark small /> : bot.name[0]}
-                    </span>
-                    <div>
-                      <h1>
-                        {bot.id === 'orchestrator' ? 'Your workspace, in conversation.' : bot.name}
-                      </h1>
-                      <p>
-                        {bot.id === 'orchestrator'
-                          ? 'One place to ask, delegate, and bring it together.'
-                          : bot.role}
-                      </p>
-                    </div>
-                  </div>
-                  <button className="text-button" onClick={() => setEditBot(bot)}>
-                    <Settings2 size={14} />
-                    Configure
-                  </button>
-                </div>
                 <div
                   className="transcript"
                   ref={transcript}
@@ -460,44 +473,50 @@ export function App() {
                     nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
                   }}
                 >
-                  {snapshot.messages.filter((m) => m.botId === bot.id).length === 0 && (
-                    <div className="welcome">
-                      <div className="eyebrow">START WITH AN OUTCOME</div>
-                      <h2>
-                        What would you like
-                        <br />
-                        to move forward?
-                      </h2>
-                      <p>
-                        Ask me to do the work, assemble a little help,
-                        <br className="wide-only" /> or pick up where you left off.
-                      </p>
-                      <div className="suggestions">
-                        {(workspace === 'demo'
-                          ? [
-                              'Delegate a comparison to a researcher and reviewer',
-                              'Show an approval',
-                              'Demonstrate helper failure and recovery',
-                            ]
-                          : [
-                              'Create a research bot that checks claims against evidence.',
-                              'What context and decisions do we have in this workspace?',
-                              'Help me turn a rough idea into a clear project brief.',
-                            ]
-                        ).map((s, i) => (
-                          <button key={s} onClick={() => setDraft(s)}>
-                            <span>{['01', '02', '03'][i]}</span>
-                            {s}
-                            <ArrowUpRight size={16} />
-                          </button>
-                        ))}
+                  {snapshot.messages.filter((m) => m.botId === bot.id).length === 0 &&
+                    !snapshot.tasks.some((t) => t.botId === bot.id && t.parentId) && (
+                      <div className="welcome">
+                        <Mark />
+                        <h2>
+                          {bot.id === 'orchestrator'
+                            ? 'What can we get done?'
+                            : `Message ${bot.name}`}
+                        </h2>
+                        <p>
+                          {bot.id === 'orchestrator'
+                            ? `Ask ${bot.name}. Your bots will take it from there.`
+                            : bot.role}
+                        </p>
+                        {bot.id === 'orchestrator' && (
+                          <div className="suggestions">
+                            {(workspace === 'demo'
+                              ? [
+                                  'Delegate a comparison to a researcher and reviewer',
+                                  'Show an approval',
+                                  'Demonstrate helper failure and recovery',
+                                ]
+                              : [
+                                  'Create a research bot that checks claims against evidence.',
+                                  'What context and decisions do we have in this workspace?',
+                                  'Help me turn a rough idea into a clear project brief.',
+                                ]
+                            ).map((s, i) => (
+                              <button
+                                key={s}
+                                onClick={() => {
+                                  setDraft(s);
+                                  input.current?.focus();
+                                }}
+                              >
+                                {workspace === 'demo'
+                                  ? ['Try delegation', 'Try an approval', 'Try recovery'][i]
+                                  : ['Create a bot', 'Recall a decision', 'Plan a project'][i]}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div className="empty-note">
-                        <ShieldCheck size={15} />
-                        You can inspect every bot, task, and source.
-                      </div>
-                    </div>
-                  )}
+                    )}
                   {snapshot.messages
                     .filter((m) => m.botId === bot.id && m.role === 'user')
                     .map((m) => {
@@ -510,6 +529,7 @@ export function App() {
                       const createdBots = snapshot.events.filter(
                         (e) => e.taskId === task?.id && e.kind === 'bot_created',
                       );
+                      const children = snapshot.tasks.filter((c) => c.parentId === task?.id);
                       return (
                         <article className="exchange" key={m.id}>
                           <div className="message user-message">
@@ -522,14 +542,8 @@ export function App() {
                           {task && (
                             <div className="message assistant-message">
                               <div className="message-meta">
-                                <Mark small />
+                                <BotAvatar bot={bot} />
                                 <strong>{bot.name}</strong>
-                                <span className="provider-name">
-                                  {run?.snapshot.engine ?? bot.engine}
-                                  {(run?.resolvedModel ?? run?.snapshot.model)
-                                    ? ` · ${run?.resolvedModel ?? run?.snapshot.model}`
-                                    : ''}
-                                </span>
                                 {isActive(task) && <Status state={task.state} />}
                               </div>
                               {createdBots.map((e) => (
@@ -539,21 +553,38 @@ export function App() {
                                   onClick={() => setView('bots')}
                                 >
                                   <BotIcon size={17} />
-                                  <span>{e.text}</span>
+                                  <span>{e.text.split(' · ')[0]}</span>
                                   <ChevronRight size={14} />
                                 </button>
                               ))}
-                              {snapshot.tasks
-                                .filter((c) => c.parentId === task.id)
-                                .map((child) => (
-                                  <TaskCard
-                                    key={child.id}
-                                    task={child}
-                                    bot={snapshot.bots.find((b) => b.id === child.botId)}
-                                    onClick={() => setSelectedTask(child.id)}
-                                    compact
-                                  />
-                                ))}
+                              {children.length > 0 && (
+                                <details className="helper-group">
+                                  <summary>
+                                    <Workflow size={14} />
+                                    {children.length} helpers ·{' '}
+                                    {children.filter((c) => c.state === 'completed').length}{' '}
+                                    complete
+                                    {children.some((c) =>
+                                      [
+                                        'failed',
+                                        'interrupted',
+                                        'waiting_approval',
+                                        'waiting_input',
+                                      ].includes(c.state),
+                                    ) && <span className="helper-attention">Needs attention</span>}
+                                    <ChevronRight size={14} />
+                                  </summary>
+                                  {children.map((child) => (
+                                    <TaskCard
+                                      key={child.id}
+                                      task={child}
+                                      bot={snapshot.bots.find((b) => b.id === child.botId)}
+                                      onClick={() => setSelectedTask(child.id)}
+                                      compact
+                                    />
+                                  ))}
+                                </details>
+                              )}
                               {text ? (
                                 <Prose text={text} onError={setError} />
                               ) : isActive(task) ? (
@@ -561,7 +592,7 @@ export function App() {
                                   {task.state === 'queued'
                                     ? 'Your request is queued.'
                                     : task.state === 'waiting_children'
-                                      ? 'Waiting for actual helper results…'
+                                      ? 'Waiting for helpers…'
                                       : task.state.startsWith('waiting')
                                         ? 'A decision is needed below.'
                                         : 'Working on your request…'}
@@ -583,6 +614,19 @@ export function App() {
                                   <span>{task.error}</span>
                                 </div>
                               )}
+                              {snapshot.artifacts
+                                .filter((a) => a.taskId === task.id)
+                                .map((a) => (
+                                  <button
+                                    className="artifact-row artifact-inline"
+                                    key={a.id}
+                                    onClick={() => openArtifact(a.id)}
+                                  >
+                                    <FileText size={16} />
+                                    <span>{a.name}</span>
+                                    <ArrowUpRight size={14} />
+                                  </button>
+                                ))}
                               <div className="response-footer">
                                 <button
                                   onClick={() => setSelectedTask(task.id)}
@@ -652,7 +696,7 @@ export function App() {
                       ref={input}
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
-                      placeholder={`Ask ${bot.id === 'orchestrator' ? 'Relay' : bot.name} to get something done…`}
+                      placeholder={`Message ${bot.name}…`}
                       rows={2}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -665,11 +709,10 @@ export function App() {
                       <button type="button" className="engine-chip" onClick={() => setEditBot(bot)}>
                         <i />
                         {workspace === 'demo'
-                          ? 'Offline fixture'
-                          : `${bot.engine === 'codex' ? 'Codex' : 'Claude Agent'} · ${bot.model || 'provider default'}`}
-                        <ChevronRight size={12} />
+                          ? 'Offline demo'
+                          : bot.model || (bot.engine === 'codex' ? 'Codex' : 'Claude Agent')}
+                        <ChevronDown size={12} />
                       </button>
-                      <span className="keyboard-hint">Shift Enter for a new line</span>
                       <button
                         type="submit"
                         className="send"
@@ -680,21 +723,14 @@ export function App() {
                       </button>
                     </div>
                   </form>
-                  <p className="composer-caption">
-                    {workspace === 'demo'
-                      ? 'Simulated responses. Real local state.'
-                      : 'Local workspace · scoped tools · inspectable results'}
-                    <span>Ctrl K to write</span>
-                  </p>
                 </div>
               </>
             )}
             {view === 'work' && (
               <div className="page-scroll">
                 <PageTitle
-                  eyebrow="FROM REQUEST TO RESULT"
-                  title="The work, made visible."
-                  text="Every assignment keeps its owner, attempts, evidence, and outcome."
+                  title="Tasks & results"
+                  text="Open a task to see its progress, files, and run history."
                 />
                 {pending.map((d) => (
                   <DecisionCard
@@ -712,7 +748,7 @@ export function App() {
                   <Empty
                     icon={<Workflow />}
                     title="Nothing in the queue yet"
-                    text="Start in the conversation. Relay will keep the work here as it happens."
+                    text={`Message ${snapshot.bots.find((b) => b.id === 'orchestrator')?.name ?? 'your orchestrator'} to start something.`}
                   />
                 )}
                 {snapshot.tasks
@@ -744,18 +780,10 @@ export function App() {
             {view === 'bots' && (
               <div className="page-scroll">
                 <PageTitle
-                  eyebrow="A SMALL, CAPABLE TEAM"
-                  title="People have teammates. You have bots."
-                  text="Ask Relay to create a specialist. Its identity and instructions remain here between assignments."
+                  title="Your bots"
+                  text="Create a specialist in conversation, or edit one here."
                 />
-                <button
-                  className="primary"
-                  onClick={() => {
-                    chooseBot('orchestrator');
-                    setDraft('Create a specialist bot for ');
-                    input.current?.focus();
-                  }}
-                >
+                <button className="primary" onClick={createBot}>
                   <Plus size={16} />
                   Create through conversation
                 </button>
@@ -764,9 +792,7 @@ export function App() {
                     .filter((b) => !b.temporary)
                     .map((b) => (
                       <div className={`bot-config-card ${b.archived ? 'archived' : ''}`} key={b.id}>
-                        <span className="avatar big">
-                          {b.id === 'orchestrator' ? <Mark small /> : b.name[0]}
-                        </span>
+                        <BotAvatar bot={b} big />
                         <h3>
                           {b.name}
                           {b.archived && <small>Archived</small>}
@@ -819,17 +845,10 @@ export function App() {
           {details && view === 'conversation' && (
             <aside className="details-pane">
               <div className="details-title">
-                <span>WORKSPACE NOTES</span>
+                <span>Details</span>
                 <button aria-label="Hide details" onClick={() => setDetails(false)}>
                   <X size={14} />
                 </button>
-              </div>
-              <div className="continuity">
-                <div className="orbit">
-                  <Mark />
-                </div>
-                <h3>A thread that carries on.</h3>
-                <p>Your bots, context, and results stay connected across conversations.</p>
               </div>
               <div className="detail-section">
                 <div className="section-label">
@@ -848,7 +867,7 @@ export function App() {
                     </button>
                   ))
                 ) : (
-                  <p className="subtle">Nothing running. A little room for the next thing.</p>
+                  <p className="subtle">Nothing running.</p>
                 )}
               </div>
               <div className="detail-section">
@@ -899,7 +918,7 @@ export function App() {
               </div>
               <div className="local-reminder">
                 <Clock3 size={15} />
-                <span>Schedules run while Relay and this computer are available.</span>
+                <span>Schedules run while Autobase and this computer are available.</span>
               </div>
             </aside>
           )}
@@ -931,11 +950,10 @@ export function App() {
     </div>
   );
 }
-function PageTitle({ eyebrow, title, text }: { eyebrow: string; title: string; text: string }) {
+function PageTitle({ title, text }: { title: string; text: string }) {
   return (
     <div className="page-title">
-      <div className="eyebrow">{eyebrow}</div>
-      <h1>{title}</h1>
+      <h2>{title}</h2>
       <p>{text}</p>
     </div>
   );
@@ -1394,9 +1412,8 @@ function ContextView({
   return (
     <div className="page-scroll">
       <PageTitle
-        eyebrow="CONTINUITY, WITH SOURCES"
-        title="Keep what matters in view."
-        text="Search workspace records, confirm a decision, or correct what gets carried forward. Agent hypotheses remain labelled."
+        title="Workspace memory"
+        text="Find past work, save a decision, or correct what your bots remember."
       />
       <form
         className="search-bar"
@@ -1577,9 +1594,8 @@ function ScheduleView({ snapshot, invoke }: { snapshot: Snapshot; invoke: Invoke
   return (
     <div className="page-scroll">
       <PageTitle
-        eyebrow="A LOCAL RHYTHM"
-        title="Give recurring work a time."
-        text="Relay must be running and the computer awake. After downtime, missed work coalesces into at most one catch-up task per schedule."
+        title="Recurring work"
+        text="Autobase must be running and the computer awake. Missed runs catch up once per schedule."
       />
       <form
         className="schedule-form"
@@ -1721,9 +1737,8 @@ function SettingsView({
   return (
     <div className="page-scroll">
       <PageTitle
-        eyebrow="YOUR WORKSPACE, YOUR TOOLS"
-        title="Ready when you are."
-        text="Provider authentication stays with its supported integration. Engine availability and live verification are shown separately."
+        title="Workspace settings"
+        text="Connect engines and choose what your bots can access."
       />
       <div className="section-heading">
         <h2>Engines</h2>
@@ -1822,7 +1837,7 @@ function SettingsView({
         </button>
         <p className="subtle">
           Grants the orchestrator read access to this folder. Bots cannot expand their own scope.
-          Artifacts are written to Relay’s managed storage.
+          Artifacts are written to Autobase’s managed storage.
         </p>
       </div>
       <h2>Execution limits</h2>
@@ -1880,7 +1895,7 @@ function SettingsView({
           No guest is provisioned. A project folder is not a sandbox or virtual machine.
         </p>
       </div>
-      <h2>When you close Relay</h2>
+      <h2>When you close Autobase</h2>
       <p className="subtle">
         The local runtime exits. Active work becomes interrupted and can be retried after
         inspection. Queued work and schedules resume on launch. There is no tray service or

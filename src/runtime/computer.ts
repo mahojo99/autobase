@@ -20,7 +20,7 @@ export async function probeComputer(): Promise<ComputerState> {
       runtime: 'podman',
       version,
       detail: machines.some((m: any) => m.Running)
-        ? 'Podman machine is running. Relay computer image and browser bridge are not provisioned. No guest is connected.'
+        ? 'Podman machine is running. Autobase computer image and browser bridge are not provisioned. No guest is connected.'
         : 'Podman installed; a running Linux machine is required. No guest is connected.',
     };
   } catch (e) {

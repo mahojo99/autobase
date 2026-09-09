@@ -4,9 +4,17 @@ Verified on **September 9, 2026**, on Windows, in branch `feature/desktop-founda
 
 ## Delivered
 
-`release\Relay-win32-x64\Relay.exe` is the portable Windows entry point. Keep the adjacent resources and DLLs. The core milestones are implemented and verified with the coverage below. The optional computer milestone remains incomplete, and Claude model execution requires an API credential.
+`release\Autobase-win32-x64\Autobase.exe` is the portable Windows entry point. Keep the adjacent resources and DLLs. The core milestones are implemented and verified with the coverage below. The optional computer milestone remains incomplete, and Claude model execution requires an API credential.
 
-The final development verification passed **34/34 domain, adapter, runtime, and boundary tests**, **4/4 Electron tests**, and TypeScript/build checks. The packaged app also passed a separate live Codex/persistence test. Fixtures are identified in test names and below; they are not live provider evidence.
+The final development verification passed **35/35 domain, adapter, runtime, and boundary tests**, **4/4 Electron tests**, and TypeScript/build checks. The packaged app also passed a separate live Codex/persistence test. Fixtures are identified in test names and below; they are not live provider evidence.
+
+## Autobase redesign
+
+The owner requested a simple dark interface and selected the name **Autobase**, with **Optimus Prime** as the orchestrator. The default screen now has one conversation header, a compact collapsible bot list, and a restrained composer. Work details start closed. Helpers expand from an inline summary; result files open from the transcript. Bumblebee and Ratchet are the offline demonstration specialists. Default live naming guidance also suggests Wheeljack, Arcee, and Jazz, while honoring explicit owner names.
+
+Upgrade coverage exercises the one-time default-name migration, retained conversations and frozen run snapshots, preservation of custom names, and reopening without repeated renames. The original `%APPDATA%\Relay` storage location and internal tool names remain compatible. Desktop coverage also checks sidebar collapse/restore, details disclosure, conversational bot creation entry, helper inspection, and direct specialist navigation. Screenshots 01–06 are refreshed from the redesigned app; 07 and 08 show settings and bot configuration. An additional WCAG 2 A/AA and 2.1 AA scan found zero violations across eight surfaces: conversation, configuration, conversation with details, Work, Shared context, Schedules, Manage bots, and Settings. This automated scan is not a full accessibility certification.
+
+The original live two-helper/context evidence below remains evidence from the foundation build; it was not re-labelled as a fresh UI-redesign provider run. The Autobase packaged check independently verifies live Bumblebee creation, streaming and restart persistence. Claude model execution and the optional VM retain the same limitations.
 
 ## Environment actually observed
 
@@ -39,13 +47,13 @@ Commands were run from the repository root. `scripts/run.ps1` invokes npm using 
 | `codex app-server generate-ts --experimental --out .cache/codex-protocol`                            | Generated the actual installed protocol boundary                                                                   |
 | `npm install --prefix .tooling --no-audit --no-fund node@24`                                         | Installed project Node 24.20.0; reproduction instructions pin it exactly                                           |
 | `.\scripts\run.ps1 install --include=optional`                                                       | Installed required Windows native optional packages with the compatible Node runtime                               |
-| `.\scripts\run.ps1 run verify`                                                                       | **PASS**: TypeScript; 34 tests, zero failures/skips; production build; 4 Electron tests, zero failures             |
+| `.\scripts\run.ps1 run verify`                                                                       | **PASS**: TypeScript; 35 tests, zero failures/skips; production build; 4 Electron tests, zero failures             |
 | `.\.tooling\node_modules\node\bin\node.exe node_modules/tsx/dist/cli.mjs scripts/live-smoke.ts`      | **LIVE PASS**: streamed Codex, persistent bot creation, structured outcome, artifact, runtime restart              |
 | `.\.tooling\node_modules\node\bin\node.exe node_modules/tsx/dist/cli.mjs scripts/live-delegation.ts` | **LIVE PASS**: two real Codex helpers, memory search/read, parent wait/synthesis, `comparison.md`                  |
 | `.\.tooling\node_modules\node\bin\node.exe node_modules/tsx/dist/cli.mjs scripts/web-smoke.ts`       | **LIVE HTTP PASS**: bounded `https://example.com/` retrieval; 144 text characters; no model or VM involved         |
-| `.\.tooling\node_modules\node\bin\node.exe node_modules/tsx/dist/cli.mjs scripts/audit-desktop.ts`   | **PASS**: no WCAG 2 A/AA or 2.1 AA violations on the default conversation screen                                   |
+| `.\.tooling\node_modules\node\bin\node.exe node_modules/tsx/dist/cli.mjs scripts/audit-desktop.ts`   | **PASS**: zero WCAG 2 A/AA or 2.1 AA violations across eight desktop surfaces                                       |
 | `.\scripts\run.ps1 run package`                                                                      | **PASS**: Windows x64 portable package produced                                                                    |
-| `.\scripts\run.ps1 run test:packaged`                                                                | **LIVE PASS**: packaged executable, native SDK executable, SQLite, real streaming/result, close/reopen persistence |
+| `.\scripts\run.ps1 run test:packaged`                                                                | **LIVE PASS**: Autobase executable, native SDK executable, Bumblebee creation, SQLite, real streaming/result, close/reopen persistence |
 | `.\scripts\run.ps1 audit --omit=dev`                                                                 | Zero reported production dependency vulnerabilities                                                                |
 | `git diff --check`                                                                                   | No whitespace errors                                                                                               |
 

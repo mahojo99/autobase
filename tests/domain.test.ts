@@ -16,11 +16,41 @@ import { toolSchemas } from '../src/runtime/tools';
 mkdirSync(resolve('.cache/unit-tests'), { recursive: true });
 const dir = () => mkdtempSync(resolve('.cache/unit-tests/store-'));
 
+test('Autobase upgrade preserves conversations, frozen attempts and custom bot names', () => {
+  for (const originalName of ['Relay', 'My coordinator']) {
+    const root = dir();
+    const old = new Store(root, 'demo');
+    const bot = { ...old.need<Bot>('bots', 'orchestrator'), name: originalName };
+    old.saveBot(bot);
+    old.db.prepare('DELETE FROM migrations WHERE version=2').run();
+    const task = old.createTask(bot, 'Existing work');
+    const message = old.message(bot.id, 'user', 'Keep our history', task.id);
+    const run = old.claim(task.id, 'fixture', 'Existing handoff')!.run;
+    old.close();
+    const upgraded = new Store(root, 'demo');
+    assert.equal(
+      upgraded.need<Bot>('bots', bot.id).name,
+      originalName === 'Relay' ? 'Optimus Prime' : originalName,
+    );
+    assert.equal(upgraded.need<Run>('runs', run.id).snapshot.name, originalName);
+    assert.deepEqual(upgraded.get('messages', message.id), message);
+    upgraded.saveBot({ ...upgraded.need<Bot>('bots', bot.id), name: 'Relay' });
+    upgraded.close();
+    const reopened = new Store(root, 'demo');
+    assert.equal(
+      reopened.need<Bot>('bots', bot.id).name,
+      'Relay',
+      'The rename is a one-time migration, not a forced naming policy',
+    );
+    reopened.close();
+  }
+});
+
 test('SQLite migration, foreign keys, transactional claims and retained attempts across restart', () => {
   const root = dir();
   const a = new Store(root, 'demo');
   const b = new Store(root, 'demo');
-  assert.equal(a.db.prepare('SELECT count(*) AS n FROM migrations').get()!.n, 1);
+  assert.equal(a.db.prepare('SELECT count(*) AS n FROM migrations').get()!.n, 2);
   const bot = a.need<Bot>('bots', 'orchestrator');
   const t = a.createTask(bot, 'One atomic assignment');
   const first = a.claim(t.id, 'fixture', 'handoff')!;
@@ -52,7 +82,7 @@ test('Run configurations are frozen and archives preserve historical ownership',
   const t = s.createTask(bot, 'Do a task');
   const run = s.claim(t.id, 'fixture', '')!.run;
   s.saveBot({ ...bot, name: 'Updated', instructions: 'New instructions', archived: true });
-  assert.equal(s.need<Run>('runs', run.id).snapshot.name, 'Relay');
+  assert.equal(s.need<Run>('runs', run.id).snapshot.name, 'Optimus Prime');
   assert.equal(s.need<Task>('tasks', t.id).botId, bot.id);
   assert.throws(() => s.createTask(s.need<Bot>('bots', bot.id), 'Another'), /archived/);
   s.close();

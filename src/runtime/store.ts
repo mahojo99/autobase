@@ -3,6 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
 import { redact } from './redaction';
+import { ORCHESTRATOR_NAME } from '../shared/branding';
 import type {
   Artifact,
   Bot,
@@ -79,7 +80,7 @@ export class Store {
     if (!this.get<Bot>('bots', 'orchestrator')) {
       this.saveBot({
         id: 'orchestrator',
-        name: 'Relay',
+        name: ORCHESTRATOR_NAME,
         role: 'Workspace orchestrator',
         instructions:
           'Coordinate useful work with clear evidence. Create reusable bots when requested. Retrieve shared context before claiming past decisions. Delegate only bounded assignments and synthesize the actual outcomes. Be concise and candid.',
@@ -92,6 +93,15 @@ export class Store {
         createdAt: now(),
       });
     }
+    this.transaction(() => {
+      if (!this.db.prepare('SELECT version FROM migrations WHERE version=2').get()) {
+        // Rename only the original default; retain custom names and frozen run snapshots.
+        const orchestrator = this.need<Bot>('bots', 'orchestrator');
+        if (orchestrator.name === 'Relay')
+          this.saveBot({ ...orchestrator, name: ORCHESTRATOR_NAME });
+        this.db.prepare('INSERT INTO migrations VALUES(2,?)').run(now());
+      }
+    });
     if (!this.get<Settings>('settings', 'runtime'))
       this.put('settings', 'runtime', {
         concurrency: 2,

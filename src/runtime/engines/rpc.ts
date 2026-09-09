@@ -103,7 +103,7 @@ export class RpcClient {
   }
   async initialize() {
     const result = await this.call('initialize', {
-      clientInfo: { name: 'relay_desktop', title: 'Relay', version: '0.1.0' },
+      clientInfo: { name: 'relay_desktop', title: 'Autobase', version: '0.1.0' },
       capabilities: { experimentalApi: true },
     });
     this.send({ method: 'initialized', params: {} });

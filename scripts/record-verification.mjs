@@ -10,11 +10,17 @@ const hash = (path) => createHash('sha256').update(readFileSync(path)).digest('h
 const proof = {
   recordedAt: new Date().toISOString(),
   branch: 'feature/desktop-foundation',
+  product: 'Autobase',
+  note: 'Live creation/delegation entries retain the original foundation evidence. Packaged live and screenshots are from the Autobase redesign.',
   automatedCoverage: {
-    domainAdapterRuntime: { passed: 34, failed: 0 },
+    domainAdapterRuntime: { passed: 35, failed: 0 },
     electron: { passed: 4, failed: 0 },
     packagedLive: { passed: 1, failed: 0 },
     defaultConversationAxeViolations: 0,
+    accessibilitySurfaces: read('.cache/accessibility/audit.json').map((s) => ({
+      surface: s.surface,
+      violations: s.violations.length,
+    })),
   },
   versions: packaged.versions,
   liveBotCreation: {
@@ -44,9 +50,9 @@ const proof = {
     task: packaged.task,
     run: packaged.run,
     restartPreserved: packaged.restartPreserved,
-    executable: 'release/Relay-win32-x64/Relay.exe',
-    exeSha256: hash('release/Relay-win32-x64/Relay.exe'),
-    appAsarSha256: hash('release/Relay-win32-x64/resources/app.asar'),
+    executable: 'release/Autobase-win32-x64/Autobase.exe',
+    exeSha256: hash('release/Autobase-win32-x64/Autobase.exe'),
+    appAsarSha256: hash('release/Autobase-win32-x64/resources/app.asar'),
   },
   liveHttp: web,
   claude: {

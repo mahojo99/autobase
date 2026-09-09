@@ -1,16 +1,16 @@
-# Relay
+# Autobase
 
-A local Windows desktop workspace where you talk to one persistent orchestrator. Relay creates specialist bots, assigns bounded tasks, retrieves shared context, collects real results, and keeps evidence visible.
+A simple, dark Windows desktop app for getting work done with a team of bots. Talk to **Optimus Prime**, your persistent orchestrator. It creates specialists such as **Bumblebee**, **Wheeljack**, and **Ratchet**, delegates bounded tasks, retrieves shared context, and brings back real results.
 
 The core app is implemented and locally verified. Real Codex chat, conversational bot creation, two-helper delegation, memory retrieval, artifacts, and packaged-app persistence passed live checks. Claude has a real official SDK adapter; its model execution remains API-key blocked. The optional virtual computer milestone is incomplete. See the [verification matrix](docs/verification.md) for live, fixture, and unverified coverage.
 
-![Relay conversation](docs/screenshots/01-conversation.png)
+![Autobase conversation](docs/screenshots/01-conversation.png)
 
 ## Run the Windows package
 
-Open `release\Relay-win32-x64\Relay.exe`. Keep the entire directory together. This is a portable, unsigned local application; no installer or public release was published.
+Open `release\Autobase-win32-x64\Autobase.exe`. Keep the entire directory together. This is a portable, unsigned local application; no installer or public release was published.
 
-The default screen is the orchestrator conversation. Choose **Explore the offline demo** for deterministic scenarios in a separate database. No simulated response is routed through a live engine.
+The default screen is Optimus Prime’s conversation. Work details stay closed until requested; files and helper summaries appear inline. Choose **Try offline demo** for deterministic scenarios in a separate database. No simulated response is routed through a live engine.
 
 ## Develop and verify
 
@@ -44,7 +44,7 @@ Run `test:live` before `test:live:delegation`; the latter uses the persistent Ev
 
 ## Engines and access
 
-- **Codex:** CLI **0.153.4**, pinned experimental App Server/dynamic tools. Run `codex login` with supported native ChatGPT authentication. Relay does not copy tokens or use ambient paid OpenAI API keys. Models come from the provider catalog. `RELAY_CODEX_PATH` can identify a native `codex.exe` if automatic discovery fails.
+- **Codex:** CLI **0.153.4**, pinned experimental App Server/dynamic tools. Run `codex login` with supported native ChatGPT authentication. Autobase does not copy tokens or use ambient paid OpenAI API keys. Models come from the provider catalog. `RELAY_CODEX_PATH` can identify a native `codex.exe` if automatic discovery fails.
 - **Claude Agent:** official SDK **0.3.266**, including its native runtime. Enter an Anthropic API key in Settings and an explicit supported model ID in bot configuration. API billing applies. Keys use Windows DPAPI; claude.ai subscription login is not offered. No live Claude model call was made in this build.
 - **Tools:** shared context, selected-folder text reads, public HTTPS text retrieval, bot/task operations, exact-action decisions, schedules, and managed artifacts. Shell commands and host desktop control are not exposed.
 
@@ -52,9 +52,9 @@ Selecting a project folder grants read access to the orchestrator. Web reads req
 
 ## Data and availability
 
-Settings shows the actual data directory, normally `%APPDATA%\Relay` on Windows. Personal and Demo have separate SQLite databases and artifact directories. Bots, conversations, run attempts, decisions, and schedules survive restart.
+The Autobase rename retains the existing data directory, normally `%APPDATA%\Relay` on Windows. The original default bot is renamed to Optimus Prime once; custom names and past run snapshots are preserved. Personal and Demo have separate SQLite databases and artifact directories. Bots, conversations, run attempts, decisions, and schedules survive restart.
 
-Closing Relay exits its runtime. Active work becomes interrupted and requires inspection before retry; uncertain side effects are not replayed. Schedules require Relay and the computer to be available. Missed occurrences coalesce into at most one catch-up per schedule and do not overlap existing work.
+Closing Autobase exits its runtime. Active work becomes interrupted and requires inspection before retry; uncertain side effects are not replayed. Schedules require Autobase and the computer to be available. Missed occurrences coalesce into at most one catch-up per schedule and do not overlap existing work.
 
 ## Handoff
 

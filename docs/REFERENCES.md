@@ -12,6 +12,8 @@ Prepared September 9, 2026. Verify current versions and protocol details during 
 
 ## Reference product and virtual computers
 
+- [Designing Grok Bot](https://x.ai/news/designing-grok-bot): added for the owner's September 9 visual redesign request. Reference for a bot list, quiet conversation, and progressively disclosed work details. Autobase uses original code and visual assets.
+
 - [OpenMausBot repository](https://github.com/milind-soni/OpenMausBot) and [documentation](https://docs.openmausbot.com/docs): inspiration endorsed by the owner. Review relevant licenses before reusing anything. Prefer original code and cite architectural inspiration.
 - [OpenMausBot engine guide](https://github.com/milind-soni/OpenMausBot/blob/main/docs/custom-engines.md): reference for normalized events and engine-specific adapters.
 - [OpenMausBot local VM](https://docs.openmausbot.com/docs/computers/local-vm): containerized Linux desktops using Docker or Podman, with Podman preferred for Windows in that implementation. A container desktop and its underlying VM are distinct layers.
