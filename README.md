@@ -1,4 +1,4 @@
-# Autobase
+# Autobase (Beta)
 
 Autobase gives frontier models a desktop workspace to create bots, delegate tasks and share context.
 
