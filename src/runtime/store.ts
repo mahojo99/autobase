@@ -183,6 +183,7 @@ export class Store {
     role: Message['role'],
     text: string,
     taskId: string | null = null,
+    kind?: Message['kind'],
   ): Message {
     this.need<Bot>('bots', botId);
     const m: Message = {
@@ -194,6 +195,7 @@ export class Store {
       taskId,
       createdAt: now(),
       indexed: this.settings().indexConversations,
+      ...(kind ? { kind } : {}),
     };
     this.db
       .prepare('INSERT INTO messages VALUES(?,?,?,?)')

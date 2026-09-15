@@ -8,7 +8,7 @@ import { safeError } from './types';
 import { findCodex, RpcClient } from './rpc';
 
 const exec = promisify(execFile);
-export const CODEX_VERSION = '0.153.4';
+export const CODEX_VERSION = '0.154.0';
 // Native authentication stays in Codex. The app does not read or copy its auth files.
 const disabledFeatures = [
   'shell_tool',
@@ -58,7 +58,7 @@ export class CodexAdapter implements EngineAdapter {
       engine: 'codex',
       state: 'unavailable',
       version: this.version,
-      detail: 'Install Codex CLI 0.153.4 and run codex login in your terminal.',
+      detail: `Install Codex CLI ${CODEX_VERSION} and run codex login in your terminal.`,
       models: [],
     };
     const executable = findCodex();
@@ -105,7 +105,8 @@ export class CodexAdapter implements EngineAdapter {
   }
   async run(input: EngineInput): Promise<EngineResult> {
     const executable = findCodex();
-    if (!executable) throw new Error('Codex CLI unavailable. Install 0.153.4 and run codex login.');
+    if (!executable)
+      throw new Error(`Codex CLI unavailable. Install ${CODEX_VERSION} and run codex login.`);
     const rpc = this.createClient(executable);
     let threadId = '';
     let turnId = '';

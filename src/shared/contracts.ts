@@ -34,6 +34,7 @@ export type Message = {
   text: string;
   createdAt: string;
   indexed: boolean;
+  kind?: 'guidance';
 };
 export type Outcome = {
   status: 'success' | 'blocked';
@@ -60,6 +61,7 @@ export type Task = {
   outcome: Outcome | null;
   error: string | null;
   scheduleId: string | null;
+  ownerPriority?: boolean;
 };
 export type Run = {
   id: string;
@@ -215,6 +217,17 @@ export const botPatch = z
 export const commandSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('snapshot') }).strict(),
   z.object({ action: z.literal('readiness') }).strict(),
+  z
+    .object({
+      action: z.literal('create_bot'),
+      role: z.string().trim().min(1).max(180),
+      instructions: z.string().max(12000).default(''),
+      engine: engine.optional(),
+    })
+    .strict(),
+  z
+    .object({ action: z.literal('guide'), taskId: id, text: z.string().trim().min(1).max(30000) })
+    .strict(),
   z
     .object({ action: z.literal('send'), botId: id, text: z.string().trim().min(1).max(30000) })
     .strict(),

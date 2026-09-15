@@ -23,6 +23,9 @@ export const toolSchemas = {
     .strict(),
   relay_wait_children: z.object({}).strict(),
   relay_read_task: z.object({ taskId: str(100) }).strict(),
+  relay_read_conversation: z
+    .object({ botId: str(100), limit: z.number().int().min(1).max(30).default(12) })
+    .strict(),
   relay_search_context: z.object({ query: z.string().max(500) }).strict(),
   relay_read_context: z.object({ id: str(100) }).strict(),
   relay_remember: z
@@ -62,6 +65,8 @@ const descriptions: Record<ToolName, string> = {
   relay_wait_children:
     'Wait for this task’s children to settle, then receive actual structured outcomes. Failed or cancelled children must be acknowledged. This wait is visible and persisted.',
   relay_read_task: 'Read an authorized task, current status, outcomes, evidence and artifacts.',
+  relay_read_conversation:
+    'Read a bot’s shared conversation in this workspace, including direct owner messages and results, with source IDs. Excluded messages are omitted. Use this to coordinate without asking the owner to repeat context.',
   relay_search_context:
     'Search shared workspace history and memory. Results carry source IDs, dates and authority; hypotheses are not user decisions.',
   relay_read_context: 'Read one authorized non-excluded source record returned by search.',

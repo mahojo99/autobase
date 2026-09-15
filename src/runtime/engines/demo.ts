@@ -20,8 +20,20 @@ export class DemoAdapter implements EngineAdapter {
     const task =
       input.prompt.split('CURRENT REQUEST\n')[1]?.split('\nEND REQUEST')[0] ?? input.prompt;
     input.onSession(`demo-${input.run.id}`, 'offline-fixture');
+    const guidance = JSON.parse(input.run.handoff).ownerGuidance as { text: string }[];
     let answer: string;
-    if (input.run.snapshot.temporary || input.run.snapshot.id !== 'orchestrator') {
+    if (guidance?.length) {
+      answer = `Offline fixture: continued the same task with your updated instructions: ${guidance.at(-1)!.text}. No live provider was called.`;
+    } else if (/wait for (my )?guidance/i.test(task)) {
+      await input.ask(
+        'question',
+        'What should I focus on?',
+        'Current task',
+        'Offline guidance scenario.',
+        ['Continue'],
+      );
+      answer = 'Offline fixture: continued after your answer.';
+    } else if (input.run.snapshot.temporary || input.run.snapshot.id !== 'orchestrator') {
       await delay(600, undefined, { signal: input.signal });
       if (/fail/i.test(task) && input.run.attempt === 1)
         throw new Error(

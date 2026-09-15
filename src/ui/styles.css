@@ -681,10 +681,23 @@ main {
   animation: breathe 1.8s ease-in-out infinite;
 }
 .composer-wrap {
+  position: relative;
   width: 100%;
   max-width: 804px;
   margin: 0 auto;
   padding: 10px 32px 28px;
+}
+.guidance-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 0 4px 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.guidance-bar > span {
+  flex: 1;
 }
 .composer {
   background: #242427;

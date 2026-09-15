@@ -11,6 +11,7 @@ import {
   FileText,
   FolderOpen,
   Layers3,
+  MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
@@ -158,7 +159,12 @@ export function App() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [botId, setBotId] = useState('orchestrator');
   const [error, setError] = useState('');
-  const [draft, setDraft] = useState('');
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const draftKey = `${workspace}:${botId}`;
+  const draft = drafts[draftKey] ?? '';
+  const setDraft = (text: string) => setDrafts((previous) => ({ ...previous, [draftKey]: text }));
+  const [creatingBot, setCreatingBot] = useState(false);
+  const [newTaskFor, setNewTaskFor] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [streams, setStreams] = useState<Record<string, string>>({});
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
@@ -220,8 +226,10 @@ export function App() {
     setSnapshot(null);
     setBotId('orchestrator');
     setSelectedTask(null);
+    setCreatingBot(false);
+    setEditBot(null);
+    setNewTaskFor(null);
     setStreams({});
-    setDraft('');
     setView('conversation');
     setDetails(false);
     void refresh();
@@ -267,7 +275,12 @@ export function App() {
         setView('conversation');
         input.current?.focus();
       }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'n' && !dialog) {
+        event.preventDefault();
+        setCreatingBot(true);
+      }
       if (event.key === 'Escape') {
+        setCreatingBot(false);
         setEditBot(null);
         setSelectedTask(null);
       }
@@ -308,24 +321,32 @@ export function App() {
   const active = snapshot.tasks.filter(isActive);
   const engine = snapshot.engines.find((e) => e.engine === bot.engine);
   const selected = snapshot.tasks.find((t) => t.id === selectedTask);
+  const botWork = active.filter((task) => task.botId === bot.id);
+  const currentTask = botWork.find((task) => task.state !== 'queued') ?? botWork[0];
+  const guiding = currentTask && newTaskFor !== currentTask.id;
   const send = async (text = draft) => {
     if (!text.trim() || sending) return;
     setSending(true);
     nearBottom.current = true;
-    const result = await invoke({ action: 'send', botId: bot.id, text: text.trim() });
-    if (result) setDraft('');
+    const key = draftKey;
+    const result = await invoke(
+      guiding
+        ? { action: 'guide', taskId: currentTask.id, text: text.trim() }
+        : { action: 'send', botId: bot.id, text: text.trim() },
+    );
+    if (result)
+      setDrafts((previous) => (previous[key] === text ? { ...previous, [key]: '' } : previous));
     setSending(false);
     input.current?.focus();
   };
   const chooseBot = (id: string) => {
+    setNewTaskFor(null);
     setBotId(id);
     setView('conversation');
     nearBottom.current = true;
   };
   const createBot = () => {
-    chooseBot('orchestrator');
-    setDraft('Create a bot that ');
-    requestAnimationFrame(() => input.current?.focus());
+    setCreatingBot(true);
   };
   const latestRun = (taskId: string) => snapshot.runs.filter((r) => r.taskId === taskId).at(-1);
   const answer = (decision: Decision, value: string) =>
@@ -362,7 +383,7 @@ export function App() {
         </div>
         <div className="bot-nav">
           {snapshot.bots
-            .filter((b) => !b.archived && !b.temporary)
+            .filter((b) => !b.archived)
             .map((b) => (
               <button
                 key={b.id}
@@ -554,13 +575,18 @@ export function App() {
                         )}
                       </div>
                     )}
-                  {snapshot.messages
-                    .filter((m) => m.botId === bot.id && m.role === 'user')
-                    .map((m) => {
-                      const task = snapshot.tasks.find((t) => t.id === m.taskId);
+                  {snapshot.tasks
+                    .filter((task) => task.botId === bot.id)
+                    .map((task) => {
+                      const m = snapshot.messages.find(
+                        (message) =>
+                          message.taskId === task.id && message.role === 'user' && !message.kind,
+                      );
+                      const parent = snapshot.tasks.find((parent) => parent.id === task.parentId);
+                      const assignedBy = snapshot.bots.find((owner) => owner.id === parent?.botId);
                       const run = task && latestRun(task.id);
-                      const response = snapshot.messages.find(
-                        (r) => r.taskId === m.taskId && r.role === 'assistant',
+                      const response = snapshot.messages.findLast(
+                        (r) => r.taskId === task.id && r.role === 'assistant',
                       );
                       const text = response?.text ?? (run && (streams[run.id] ?? run.text));
                       const createdBots = snapshot.events.filter(
@@ -568,14 +594,37 @@ export function App() {
                       );
                       const children = snapshot.tasks.filter((c) => c.parentId === task?.id);
                       return (
-                        <article className="exchange" key={m.id}>
+                        <article className="exchange" key={task.id}>
                           <div className="message user-message">
                             <div className="message-meta">
-                              <span className="user-avatar">You</span>
-                              <time>{time(m.createdAt)}</time>
+                              {assignedBy ? (
+                                <button
+                                  className="text-button"
+                                  onClick={() => chooseBot(assignedBy.id)}
+                                >
+                                  From {assignedBy.name} <ArrowUpRight size={12} />
+                                </button>
+                              ) : (
+                                <span className="user-avatar">{m ? 'You' : 'Scheduled task'}</span>
+                              )}
+                              <time>{time(m?.createdAt ?? task.createdAt)}</time>
                             </div>
-                            <Prose text={m.text} onError={setError} />
+                            <Prose text={m?.text ?? task.objective} onError={setError} />
                           </div>
+                          {snapshot.messages
+                            .filter(
+                              (message) =>
+                                message.taskId === task.id && message.kind === 'guidance',
+                            )
+                            .map((message) => (
+                              <div className="message user-message" key={message.id}>
+                                <div className="message-meta">
+                                  <span>You · updated instructions</span>
+                                  <time>{time(message.createdAt)}</time>
+                                </div>
+                                <Prose text={message.text} onError={setError} />
+                              </div>
+                            ))}
                           {task && (
                             <div className="message assistant-message">
                               <div className="message-meta">
@@ -703,14 +752,29 @@ export function App() {
                         </article>
                       );
                     })}
-                  {bot.id !== 'orchestrator' &&
-                    snapshot.tasks
-                      .filter((t) => t.botId === bot.id && t.parentId)
-                      .map((t) => (
-                        <TaskCard key={t.id} task={t} onClick={() => setSelectedTask(t.id)} />
-                      ))}
                 </div>
                 <div className="composer-wrap">
+                  {currentTask && (
+                    <div className="guidance-bar">
+                      <span>
+                        {guiding
+                          ? `Guide ${bot.name} on the current task`
+                          : 'Queue a separate task'}
+                      </span>
+                      <button
+                        className="text-button"
+                        onClick={() => setNewTaskFor(guiding ? currentTask.id : null)}
+                      >
+                        {guiding ? 'New task instead' : 'Guide current task'}
+                      </button>
+                      <button
+                        className="text-button"
+                        onClick={() => void invoke({ action: 'cancel', taskId: currentTask.id })}
+                      >
+                        <Square size={12} /> Stop
+                      </button>
+                    </div>
+                  )}
                   {engine && !['ready', 'installed'].includes(engine.state) && (
                     <div className="readiness-inline">
                       <CircleHelp size={15} />
@@ -733,7 +797,7 @@ export function App() {
                       ref={input}
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
-                      placeholder={`Message ${bot.name}…`}
+                      placeholder={guiding ? `Guide ${bot.name}…` : `Message ${bot.name}…`}
                       rows={2}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -754,7 +818,7 @@ export function App() {
                         type="submit"
                         className="send"
                         disabled={!draft.trim() || sending || bot.archived}
-                        aria-label="Send message"
+                        aria-label={guiding ? 'Send guidance' : 'Send message'}
                       >
                         <ArrowUp size={19} />
                       </button>
@@ -818,51 +882,49 @@ export function App() {
               <div className="page-scroll">
                 <PageTitle
                   title="Your bots"
-                  text="Create a specialist in conversation, or edit one here."
+                  text="Talk to any bot directly. Optimus keeps track of the whole workspace."
                 />
                 <button className="primary" onClick={createBot}>
                   <Plus size={16} />
-                  Create through conversation
+                  Create a bot
                 </button>
                 <div className="bot-grid">
-                  {snapshot.bots
-                    .filter((b) => !b.temporary)
-                    .map((b) => (
-                      <div className={`bot-config-card ${b.archived ? 'archived' : ''}`} key={b.id}>
-                        <BotAvatar bot={b} big />
-                        <h3>
-                          {b.name}
-                          {b.archived && <small>Archived</small>}
-                        </h3>
-                        <p>{b.role}</p>
-                        <dl>
-                          <dt>Engine</dt>
-                          <dd>{b.engine}</dd>
-                          <dt>Model</dt>
-                          <dd>{b.model || 'Provider default'}</dd>
-                          <dt>Environment</dt>
-                          <dd>Local scoped tools</dd>
-                          <dt>Access</dt>
-                          <dd>
-                            {b.scope.files ? 'Selected folder' : 'Workspace context'}
-                            {b.scope.web ? ' + public web' : ''}
-                          </dd>
-                        </dl>
-                        <div className="row">
-                          <button className="text-button" onClick={() => chooseBot(b.id)}>
-                            Open conversation
-                            <ArrowUpRight size={13} />
-                          </button>
-                          <button
-                            className="icon-button"
-                            aria-label={`Configure ${b.name}`}
-                            onClick={() => setEditBot(b)}
-                          >
-                            <Settings2 size={16} />
-                          </button>
-                        </div>
+                  {snapshot.bots.map((b) => (
+                    <div className={`bot-config-card ${b.archived ? 'archived' : ''}`} key={b.id}>
+                      <BotAvatar bot={b} big />
+                      <h3>
+                        {b.name}
+                        {b.archived && <small>Archived</small>}
+                      </h3>
+                      <p>{b.role}</p>
+                      <dl>
+                        <dt>Engine</dt>
+                        <dd>{b.engine}</dd>
+                        <dt>Model</dt>
+                        <dd>{b.model || 'Provider default'}</dd>
+                        <dt>Environment</dt>
+                        <dd>Local scoped tools</dd>
+                        <dt>Access</dt>
+                        <dd>
+                          {b.scope.files ? 'Selected folder' : 'Workspace context'}
+                          {b.scope.web ? ' + public web' : ''}
+                        </dd>
+                      </dl>
+                      <div className="row">
+                        <button className="text-button" onClick={() => chooseBot(b.id)}>
+                          Open conversation
+                          <ArrowUpRight size={13} />
+                        </button>
+                        <button
+                          className="icon-button"
+                          aria-label={`Configure ${b.name}`}
+                          onClick={() => setEditBot(b)}
+                        >
+                          <Settings2 size={16} />
+                        </button>
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -972,6 +1034,20 @@ export function App() {
           }}
         />
       )}
+      {creatingBot && (
+        <CreateBotDialog
+          snapshot={snapshot}
+          close={() => setCreatingBot(false)}
+          create={async (role, instructions, engine) => {
+            const created = await invoke<Bot>({ action: 'create_bot', role, instructions, engine });
+            if (created) {
+              setCreatingBot(false);
+              chooseBot(created.id);
+              requestAnimationFrame(() => input.current?.focus());
+            }
+          }}
+        />
+      )}
       {selected && (
         <TaskDetail
           task={selected}
@@ -982,6 +1058,10 @@ export function App() {
           onError={setError}
           openArtifact={openArtifact}
           onAnswer={answer}
+          openConversation={() => {
+            setSelectedTask(null);
+            chooseBot(selected.botId);
+          }}
         />
       )}
     </div>
@@ -1093,6 +1173,94 @@ function DecisionCard({
   );
 }
 type Invoke = <T = unknown>(command: Command) => Promise<T | undefined>;
+function CreateBotDialog({
+  snapshot,
+  close,
+  create,
+}: {
+  snapshot: Snapshot;
+  close: () => void;
+  create: (role: string, instructions: string, engine: Bot['engine']) => Promise<void>;
+}) {
+  const [role, setRole] = useState('');
+  const [instructions, setInstructions] = useState('');
+  const [engine, setEngine] = useState<Bot['engine']>(
+    snapshot.bots.find((bot) => bot.id === 'orchestrator')!.engine,
+  );
+  const [saving, setSaving] = useState(false);
+  return (
+    <div className="modal-backdrop" onClick={close}>
+      <section
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Create a bot"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="modal-title">
+          <h2>Create a bot</h2>
+          <button onClick={close} aria-label="Close new bot">
+            <X size={20} />
+          </button>
+        </div>
+        <p className="subtle">
+          Give it a job. We’ll assign an Autobot name and open its conversation.
+        </p>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (saving) return;
+            setSaving(true);
+            void create(role.trim(), instructions.trim(), engine).finally(() => setSaving(false));
+          }}
+        >
+          <label>
+            Role
+            <input
+              autoFocus
+              required
+              maxLength={180}
+              placeholder="Writer, researcher, coding partner…"
+              value={role}
+              onChange={(event) => setRole(event.target.value)}
+            />
+          </label>
+          <label>
+            Instructions <small>(optional)</small>
+            <textarea
+              rows={3}
+              maxLength={12000}
+              placeholder="What should this bot know about its job?"
+              value={instructions}
+              onChange={(event) => setInstructions(event.target.value)}
+            />
+          </label>
+          <label>
+            Engine
+            <select
+              value={engine}
+              onChange={(event) => setEngine(event.target.value as Bot['engine'])}
+            >
+              {snapshot.engines.map((item) => (
+                <option key={item.engine} value={item.engine}>
+                  {engineNames[item.engine]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="row">
+            <button type="button" onClick={close}>
+              Cancel
+            </button>
+            <button className="primary" disabled={!role.trim() || saving}>
+              {saving ? 'Creating…' : 'Create bot'}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  );
+}
 function BotEditor({
   bot,
   snapshot,
@@ -1289,6 +1457,7 @@ function TaskDetail({
   onError,
   openArtifact,
   onAnswer,
+  openConversation,
 }: {
   task: Task;
   snapshot: Snapshot;
@@ -1298,6 +1467,7 @@ function TaskDetail({
   onError: (s: string) => void;
   openArtifact: (id: string) => void;
   onAnswer: (d: Decision, a: string) => unknown;
+  openConversation: () => void;
 }) {
   const runs = snapshot.runs.filter((r) => r.taskId === task.id).toReversed();
   return (
@@ -1337,6 +1507,9 @@ function TaskDetail({
             ),
           )}
         <div className="row actions">
+          <button onClick={openConversation}>
+            <MessageSquare size={14} /> Open bot conversation
+          </button>
           {isActive(task) ? (
             <button onClick={() => void invoke({ action: 'cancel', taskId: task.id })}>
               <Square size={13} />

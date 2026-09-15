@@ -51,7 +51,7 @@ export function claudeNativeArgs(input: EngineInput, config: string): string[] {
 }
 
 export class ClaudeNativeAdapter implements EngineAdapter {
-  readonly version = 'Claude Code native stream-json (tested 2.1.263)';
+  readonly version = 'Claude Code native stream-json (tested 2.1.267)';
   constructor(
     readonly cwd: string,
     readonly executable = findNative,

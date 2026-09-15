@@ -2,6 +2,8 @@
 
 Autobase is a Windows desktop app built with Electron, React, TypeScript and SQLite. Optimus Prime is the persistent orchestrator. New bots receive an available Autobot name and portrait independently of their role: Bumblebee, Ratchet, Wheeljack, Arcee or Jazz.
 
+Use **+** or **Ctrl+N** to create a bot directly, or ask Optimus to create one. Every bot has its own conversation, including helpers created for an assignment. You can guide its current task, queue separate work, or stop it. Drafts stay with their bot while switching conversations. Optimus receives recent shared conversations and results and can retrieve their source records.
+
 ## Run locally
 
 To try a released build without development tools, use the PowerShell command in the [README](../README.md). The installer downloads the public release, verifies its SHA-256 digest and launches it from `%LOCALAPPDATA%\Autobase`. It needs no administrator access, Git or Node.js. Live providers still require their installed CLIs and sign-in; the offline demo runs immediately.
@@ -20,7 +22,7 @@ The project uses Node 24.20.0 without replacing the global runtime. Dependencies
 
 ## Providers
 
-Install [Codex CLI](https://github.com/openai/codex) or [Claude Code](https://code.claude.com/docs/en/setup), then use Settings to sign in through that provider's native flow. Autobase does not copy login tokens. The tested boundaries are Codex 0.153.4 (experimental App Server) and Claude Code 2.1.263. Compatible subscription access depends on the provider and account.
+Install [Codex CLI](https://github.com/openai/codex) or [Claude Code](https://code.claude.com/docs/en/setup), then use Settings to sign in through that provider's native flow. Autobase does not copy login tokens. The tested boundaries are Codex 0.154.0 (experimental App Server) and Claude Code 2.1.267. Compatible subscription access depends on the provider and account.
 
 Claude Agent SDK, Grok and Gemini are separate API options requiring keys and API billing. They do not use Grok or Google subscriptions. Keys entered in Settings use Windows-backed encryption.
 
@@ -39,6 +41,8 @@ Packaging creates `release/Autobase-win32-x64/Autobase.exe` and `release/Autobas
 ## Runtime and limits
 
 The sandboxed renderer uses narrow typed IPC. A separate runtime owns bot configuration, task execution, permissions, provider processes, schedules, artifacts and SQLite context retrieval. Delegation is bounded to two concurrent helpers at one level; archived bots retain their history. Personal data stays under `%APPDATA%\Relay\personal` for compatibility. Offline demo data is separate.
+
+Guidance interrupts the current provider attempt and continues the same task in a new session with saved context and updated instructions. Earlier actions remain; pending approvals for that attempt expire. Existing helpers keep working. This is a runtime continuation, not native mid-turn steering. Context handoffs use recent excerpts; bots can retrieve older shared records. Excluded messages are omitted from shared retrieval.
 
 Codex and native Claude Code have passed live orchestration and restart checks. API adapters have protocol/fixture coverage; live Anthropic, xAI and Gemini API checks still require keys. Fresh browser sign-in requires the user to complete the provider flow.
 
